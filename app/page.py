@@ -45,7 +45,7 @@ st.markdown("""un mapa
 """)
 
 with open("ecobici_flow_map.html", "r") as f:
-        html_content = f.read()
+    html_content = f.read()
     
 # Display the HTML content
 st.components.v1.html(html_content, height=600)
