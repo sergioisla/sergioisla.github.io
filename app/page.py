@@ -21,18 +21,17 @@ st.markdown(margins_css, unsafe_allow_html=True)
 
 #Title
 st.markdown("""
-    ## 🇲🇽 Mexico City - Security Map
-    ### Don't Become a Statistic""")
+    ## Sergio Isla
+    ### Portfolio""")
 
 col1, col2 = st.columns([1,1])
 
 with col1:
     ## Safety Map Front
     st.markdown("""
-    Despite our love for CDMX, we cannot ignore the fact that it is not the safest place on earth.\n
-    However, we are here to empower you with amazing knowledge and provide a safety map for this incredible city.\n
-    Our aim is to offer a comprehensive overview of neighborhoods where you can enjoy tacos and mezcal without worries,
-    as well as areas where caution is advised.""")
+    I just finished my Data Science bootcamp at Le Wagon and am eager to continue developing mainly this new path.
+
+I'm an engineer with technical and administrative experience in search of improving the efficiency of the business activities. I achieve my responsibilities through effective prioritization before work in challenging environments, conciliatory attitude, and opportune communication..""")
 
 with col2:
     st.markdown("""
@@ -43,6 +42,6 @@ with col2:
 
 st.markdown("""
 <center>
- <iframe width="640" height="370" src="https://www.youtube.com/embed/2zavTsqaAiw" title="CDMX, la ciudad más vibrante de América Latina" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+ <iframe width="640" height="370" src="https://www.youtube.com/embed/watch?v=FhKJgqxNDD8" title="King Crimson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </center>
 """, unsafe_allow_html=True)
