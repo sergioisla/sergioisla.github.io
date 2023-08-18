@@ -1,9 +1,9 @@
-import streamlit as st
-import folium
-from streamlit_folium import folium_static
-import requests
-import pandas as pd
-import os
+# import streamlit as st
+# import folium
+# from streamlit_folium import folium_static
+# import requests
+# import pandas as pd
+# import os
 
 
 st.set_page_config(layout="wide")
@@ -22,7 +22,7 @@ margins_css = """
 st.markdown(margins_css, unsafe_allow_html=True)
 
 
-API_HOST = os.getenv("API_HOST")
+#API_HOST = os.getenv("API_HOST")
 
 # Add map
 st.title("Historical 📅 crime data 📜📍1t")
@@ -30,15 +30,15 @@ st.title("Historical 📅 crime data 📜📍1t")
 
 col1, col2, col3 = st.columns([1,3,1])
 
-with col1:
-    # Fetch neighborhoods from the backend
-    if 'neighborhoods' not in st.session_state:
-        #response = requests.get(API_HOST + "/neighborhoods")
-        response = requests.get("https://sec-map-image-mbkuylrnsq-uw.a.run.app" + "/neighborhoods")
-        neighborhoods = response.json()["neighborhoods"]
-        st.session_state.neighborhoods = neighborhoods
-    else:
-        neighborhoods = st.session_state.neighborhoods
+# with col1:
+#     # Fetch neighborhoods from the backend
+#     if 'neighborhoods' not in st.session_state:
+#         #response = requests.get(API_HOST + "/neighborhoods")
+#         response = requests.get("https://sec-map-image-mbkuylrnsq-uw.a.run.app" + "/neighborhoods")
+#         neighborhoods = response.json()["neighborhoods"]
+#         st.session_state.neighborhoods = neighborhoods
+#     else:
+#         neighborhoods = st.session_state.neighborhoods
 
     category_colors = {
         'fraud': '#0068fa',
@@ -90,28 +90,28 @@ with col1:
         st.session_state.data = []
 
     # Check if values were selected
-    if all(selected_values.values()):
-        if st.button('Search 🔍'):
-            # Make API request to the backend to get historical data
-            #api_url = API_HOST + "/get_historical_data"
-            api_url = "https://sec-map-image-mbkuylrnsq-uw.a.run.app" + "/get_historical_data"
+    # if all(selected_values.values()):
+    #     if st.button('Search 🔍'):
+    #         # Make API request to the backend to get historical data
+    #         #api_url = API_HOST + "/get_historical_data"
+    #         api_url = "https://sec-map-image-mbkuylrnsq-uw.a.run.app" + "/get_historical_data"
 
-            year = selected_values['Year'] if 'ALL' not in selected_values['Year'] else None
-            params = {
-                'neighborhoods': selected_values['Neighborhood'],
-                'years': year,
-                'months': [month_mapping.get(month, month) for month in selected_values['Month']],
-                'categories': selected_values['Category']
-            }
+    #         year = selected_values['Year'] if 'ALL' not in selected_values['Year'] else None
+    #         params = {
+    #             'neighborhoods': selected_values['Neighborhood'],
+    #             'years': year,
+    #             'months': [month_mapping.get(month, month) for month in selected_values['Month']],
+    #             'categories': selected_values['Category']
+    #         }
 
-            with st.spinner('Retrieving crimes...'):
-                response = requests.post(api_url, json=params)
-                if response.status_code == 200:
-                    st.session_state.data = response.json()["data"]
-                    st.session_state.search_executed = True
+    #         with st.spinner('Retrieving crimes...'):
+    #             response = requests.post(api_url, json=params)
+    #             if response.status_code == 200:
+    #                 st.session_state.data = response.json()["data"]
+    #                 st.session_state.search_executed = True
 
-        else:
-            st.empty()
+    #     else:
+    #         st.empty()
 
 
     else:
