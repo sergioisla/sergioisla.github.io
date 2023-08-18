@@ -42,7 +42,5 @@ with col2:
     
 
 st.markdown("""
-<center>
- <iframe width="640" height="370" src="ecobici_flow_map.html" title="Ecobici most used tracks (March, 2023)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-</center>
-""", unsafe_allow_html=True)
+
+""")
