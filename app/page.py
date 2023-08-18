@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from PIL import Image
 
-API_HOST = os.getenv("API_HOST")
+#API_HOST = os.getenv("API_HOST")
 
 # Setting the wide config for the page
 st.set_page_config(layout="wide")
