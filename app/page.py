@@ -35,13 +35,14 @@ I'm an engineer with technical and administrative experience in search of improv
 
 with col2:
     st.markdown("""
-    Our data encompasses all registered crimes in the Colonias of CDMX from **2019 to 2023**. By sharing this information, we hope to help you make informed decisions and navigate the city with confidence.\n
-    Remember, being aware is the first step towards safety. Let us guide you through the vibrant streets of CDMX, ensuring that you won't become just another statistic.\n
-    To be transparent from the beginning, you can find the data for our project publicly available [here](https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj#:~:text=Descargar-,V%C3%ADctimas%20en%20Carpetas%20de%20Investigaci%C3%B3n%20(completa),-CSV)
+    : ) \n
+    : ) \n
     """)
+    #To be transparent from the beginning, you can find the data for our project publicly available [here](https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj#:~:text=Descargar-,V%C3%ADctimas%20en%20Carpetas%20de%20Investigaci%C3%B3n%20(completa),-CSV)
+    
 
 st.markdown("""
 <center>
- <iframe width="640" height="370" src="https://www.youtube.com/embed/watch?v=FhKJgqxNDD8" title="King Crimson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+ <iframe width="640" height="370" src="https://www.youtube.com/embed/watch?v=XpqsrC58U9E" title="King Crimson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </center>
 """, unsafe_allow_html=True)
