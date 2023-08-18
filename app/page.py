@@ -41,6 +41,11 @@ with col2:
     #To be transparent from the beginning, you can find the data for our project publicly available [here](https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj#:~:text=Descargar-,V%C3%ADctimas%20en%20Carpetas%20de%20Investigaci%C3%B3n%20(completa),-CSV)
     
 
-st.markdown("""
-
+st.markdown("""un mapa
 """)
+
+with open("ecobici_flow_map.html", "r") as f:
+        html_content = f.read()
+    
+# Display the HTML content
+st.components.v1.html(html_content, height=600)
