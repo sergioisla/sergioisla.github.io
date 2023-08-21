@@ -55,4 +55,4 @@ with open("app/ecobici_flow_map.html", "r") as f:
     html_content = f.read()
 
 # Display the HTML content
-st.components.v1.html(html_content, width=500,height=500)
+st.components.v1.html(html_content, width=500,height=550)
