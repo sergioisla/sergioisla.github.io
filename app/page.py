@@ -2,7 +2,8 @@ import streamlit as st
 import os
 from PIL import Image
 
-#API_HOST = os.getenv("API_HOST")
+st.title('Sergio Isla')
+
 
 # Setting the wide config for the page
 st.set_page_config(layout="wide")
@@ -43,8 +44,6 @@ with col2:
     : ) \n
     : ) \n
     """)
-    #To be transparent from the beginning, you can find the data for our project publicly available [here](https://datos.cdmx.gob.mx/dataset/victimas-en-carpetas-de-investigacion-fgj#:~:text=Descargar-,V%C3%ADctimas%20en%20Carpetas%20de%20Investigaci%C3%B3n%20(completa),-CSV)
-
 
 st.markdown("""  .\n
 
