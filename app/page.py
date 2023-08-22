@@ -19,7 +19,7 @@ st.markdown(margins_css, unsafe_allow_html=True)
 
 #Title
 st.markdown("""
-    ## Sergio Isla
+    ## Sergio*Isla
     ### Data Scientist""")
 
 col1, col2 = st.columns([1,1])
