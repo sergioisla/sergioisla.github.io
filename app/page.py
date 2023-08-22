@@ -2,9 +2,6 @@ import streamlit as st
 import os
 from PIL import Image
 
-st.title('Sergio*Isla')
-
-
 # Setting the wide config for the page
 st.set_page_config(layout="wide")
 #adding marging specs for the main page with css inyection
@@ -17,7 +14,7 @@ margins_css = """
         }
     </style>
 """
-
+st.title('Sergio Isla')
 st.markdown(margins_css, unsafe_allow_html=True)
 
 #Title
