@@ -3,7 +3,7 @@ import os
 from PIL import Image
 
 # Setting the wide config for the page
-#st.set_page_config(layout="wide")
+st.set_page_config(layout="wide")
 #adding marging specs for the main page with css inyection
 margins_css = """
     <style>
