@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from PIL import Image
 
-st.title('Sergio Isla')
+st.title('Sergio*Isla')
 
 
 # Setting the wide config for the page
