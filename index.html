@@ -10,47 +10,16 @@
 
 During the last two weeks of the bootcamp, three mates and I developed an app showing the crimes in Mexico City, plus a map showing a forecast of the crimes in Mexico City during the next 6 months:</p>
 
-<a href="https://safety-map.streamlit.app/">Safety Map</a> 
+<a href="https://safety-map.streamlit.app/">https://safety-map.streamlit.app</a> 
 <p>:)</p>
 
 <p>Later I developed a map showing the most frequent Ecobici trips from a specific bike station to a specific bike station during March, 2023.</p>
 
+<map name="ecobici_flow_map">
+  <area shape="circle" coords="ɩ00,ɩɬ0,ɩɬ" 
+href="ecobici_flow_map.html" />
+  <area shape="default" />
+</map>
 
-<div w3-include-html="ecobici_flow_map.html"></div>
-<script>
-function includeHTML() {
-  var z, i, elmnt, file, xhttp;
-  /* Loop through a collection of all HTML elements: */
-  z = document.getElementsByTagName("*");
-  for (i = 0; i < z.length; i++) {
-    elmnt = z[i];
-    /*search for elements with a certain atrribute:*/
-    file = elmnt.getAttribute("w3-include-html");
-    if (file) {
-      /* Make an HTTP request using the attribute value as the file name: */
-      xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4) {
-          if (this.status == 200) {elmnt.innerHTML = this.responseText;}
-          if (this.status == 404) {elmnt.innerHTML = "Page not found.";}
-          /* Remove the attribute, and call this function once more: */
-          elmnt.removeAttribute("w3-include-html");
-          includeHTML();
-        }
-      }
-      xhttp.open("GET", file, true);
-      xhttp.send();
-      /* Exit the function: */
-      return;
-    }
-  }
-}
-</script>
-
-<script>
-includeHTML();
-</script>
-
-  
 </body>
 </html>
