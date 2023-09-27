@@ -22,12 +22,10 @@ st.markdown("""
     ## Sergio Isla
     ### Data Scientist""")
 
-col1, col2 = st.columns([1,1])
 
-with col1:
-    ## Safety Map Front
-    st.markdown("""
-    I just finished my Data Science bootcamp at Le Wagon and am eager to continue developing mainly this new path.
+## Safety Map Front
+st.markdown("""
+I just finished my Data Science bootcamp at Le Wagon and am eager to continue developing mainly this new path.
 
 I'm an engineer with technical and administrative experience in search of improving the efficiency of the business activities. I achieve my responsibilities through effective prioritization before work in challenging environments, conciliatory attitude, and opportune communication. \n
 
@@ -36,15 +34,14 @@ During the last two weeks of the bootcamp, three mates and I developed an app sh
 
 """)
 
-with col2:
-    st.markdown("""
-    : ) \n
-    : ) \n
-    """)
+st.markdown("""
+: ) \n
+: ) \n
+""")
 
 st.markdown("""  .\n
 
-    Later I developed a map showing the most frequent Ecobici trips from a specific bike station to a specific bike station during March, 2023.
+    -> Later I developed a map showing the most frequent Ecobici trips from a specific bike station to a specific bike station during March, 2023.
 """)
 
 with open("app/ecobici_flow_map.html", "r") as f:
