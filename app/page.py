@@ -22,7 +22,7 @@ st.markdown("""
     ## Sergio Isla
     ### Data Scientist""")
 
-col1, col2 = st.columns([1,1])
+col1, col2, col3 = st.columns([1,1])
 
 with col1:
     ## Safety Map Front
@@ -53,13 +53,14 @@ with open("app/ecobici_flow_map.html", "r") as f:
 # Display the HTML content
 st.components.v1.html(html_content, width=500,height=550)
 
+with col3:
 st.markdown("""  .\n
 
     I also created a map showing the location of the UNESCO World Heritage Sites 2019 but color coded by their year of inscription.
 """)
 
-with open("app/heritage_map_2019.html", "r") as f:
-    html_content2 = f.read()
+with open("app/heritage_map_2019.html", "r") as h:
+    html_content2 = h.read()
 
 # Display the HTML content
 st.components.v1.html(html_content2, width=500,height=550)
