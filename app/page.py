@@ -39,9 +39,10 @@ st.markdown("""
  \n
 """)
 
-st.markdown("""  .\n
+st.markdown("""  \n
 
-    -> Later I developed a map showing the most frequent Ecobici trips from a specific bike station to a specific bike station during March, 2023.
+    Later I developed a map showing the most frequent* Ecobici trips from a specific bike station to a specific bike station during March, 2023. \n
+    *200 or more trips
 """)
 
 with open("app/ecobici_flow_map.html", "r") as f:
@@ -51,9 +52,10 @@ with open("app/ecobici_flow_map.html", "r") as f:
 st.components.v1.html(html_content, width=500,height=550)
 
 
-st.markdown("""  .\n
-
-    I also created a map showing the location of the UNESCO World Heritage Sites 2019 but color coded by their year of inscription.
+st.markdown("""  : ) \n
+                 \n
+    I also created a map showing the location of the UNESCO World Heritage Sites 2019 but color coded by their year of inscription.\n
+    Some trends are easier to find this way, for example that in the Middle East and Far East Asia there are almost no sites inscribed during the first decade of the Heritage list, but there are several sites inscribed during the last decades.
     """)
 
 
