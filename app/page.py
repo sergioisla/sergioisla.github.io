@@ -61,5 +61,5 @@ with open("app/heritage_map_2019.html", "r") as h:
     html_content2 = h.read()
 
 # Display the HTML content
-st.components.v1.html(html_content2, width=500,height=550)
+st.components.v1.html(html_content2, width=700,height=550)
 
