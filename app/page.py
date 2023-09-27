@@ -59,8 +59,10 @@ with col3:
     I also created a map showing the location of the UNESCO World Heritage Sites 2019 but color coded by their year of inscription.
     """)
 
+'''
 with open("app/heritage_map_2019.html", "r") as h:
     html_content2 = h.read()
 
 # Display the HTML content
 st.components.v1.html(html_content2, width=500,height=550)
+'''
