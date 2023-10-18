@@ -78,11 +78,11 @@
 			            <div class="collapse navbar-collapse menu-ui-design" id="navbar-menu">
 			                <ul class="nav navbar-nav navbar-right" data-in="fadeInDown" data-out="fadeOutUp">
 			                <li class=" smooth-menu active"></li>
-			                    <li class=" smooth-menu"><a href="#education">education</a></li>
-			                    <li class="smooth-menu"><a href="#skills">skills</a></li>
-			                    <li class="smooth-menu"><a href="#experience">experience</a></li>
+                          <li class="smooth-menu"><a href="#portfolio">portfolio</a></li>
+                          <li class="smooth-menu"><a href="#skills">skills</a></li>
+                          <li class="smooth-menu"><a href="#experience">experience</a></li>
+                          <li class=" smooth-menu"><a href="#education">education</a></li>
 			                    <!--<li class="smooth-menu"><a href="#profiles">profile</a></li>-->
-			                    <li class="smooth-menu"><a href="#portfolio">portfolio</a></li>
 			                    <!-- <li class="smooth-menu"><a href="#clients">clients</a></li> -->
 			                    <li class="smooth-menu"><a href="#contact">contact</a></li>
 			                </ul><!--/.nav -->
@@ -202,203 +202,182 @@
 		</section><!--/.about-->
 		<!--about end -->
 
-		<!--education start -->
-		<section id="education" class="education">
-			<div class="section-heading text-center">
-				<h2>education</h2>
-			</div>
-			<div class="container">
-				<div class="education-horizontal-timeline">
-					<div class="row">
-						<div class="col-sm-4">
-							<div class="single-horizontal-timeline">
-								<div class="experience-time">
-									<h2>April 2023 - July 2023</h2>
-									<h3>Data <span>Science </span> bootcamp</h3>
-								</div><!--/.experience-time-->
-								<div class="timeline-horizontal-border">
-									<i class="fa fa-circle" aria-hidden="true"></i>
-									<span class="single-timeline-horizontal"></span>
-								</div>
-								<div class="timeline">
-									<div class="timeline-content">
-										<h4 class="title">
-											Le Wagon
-										</h4>
-										<h5>Mexico City, Mexico</h5>
-										<p class="description">
-											This was an intensive 10 weeks bootcamp that culminated with a 2 weeks project: https://safety-map.streamlit.app
-										</p>
-									</div><!--/.timeline-content-->
-								</div><!--/.timeline-->
-							</div>
-						</div>
-						<div class="col-sm-4">
-							<div class="single-horizontal-timeline">
-								<div class="experience-time">
-									<h2>September 2016 - December 2016</h2>
-									<h3>Construction <span>Diploma </span> </h3>
-								</div><!--/.experience-time-->
-								<div class="timeline-horizontal-border">
-									<i class="fa fa-circle" aria-hidden="true"></i>
-									<span class="single-timeline-horizontal"></span>
-								</div>
-								<div class="timeline">
-									<div class="timeline-content">
-										<h4 class="title">
-											unam, architecture faculty
-										</h4>
-										<h5>Mexico City, Mexico</h5>
-										<p class="description">
-											Course about the fundamentals of construction, from soil mechanics to the last aesthetic layers of a building.
-										</p>
-									</div><!--/.timeline-content-->
-								</div><!--/.timeline-->
-							</div>
-						</div>
-						<div class="col-sm-4">
-							<div class="single-horizontal-timeline">
-								<div class="experience-time">
-									<h2>2007 - 2011</h2>
-									<h3>bachelor <span>of </span> mechanical-electrical engineering</h3>
-								</div><!--/.experience-time-->
-								<div class="timeline-horizontal-border">
-									<i class="fa fa-circle" aria-hidden="true"></i>
-									<span class="single-timeline-horizontal spacial-horizontal-line
-									"></span>
-								</div>
-								<div class="timeline">
-									<div class="timeline-content">
-										<h4 class="title">
-											itesm, ccm
-										</h4>
-										<h5>Mexico City, Mexico</h5>
-										<p class="description">
-											Studies including static and dynamic mechanics, elecrical circuits analysis, thermodynamics, material mechanics, electrical machines, statistics, etc.
-										</p>
-									</div><!--/.timeline-content-->
-								</div><!--/.timeline-->
-							</div>
-						</div>
-					</div>
+    <!--portfolio start -->
+		<section id="portfolio" class="portfolio">
+			<div class="portfolio-details">
+				<div class="section-heading text-center">
+					<h2>portfolio</h2>
 				</div>
-			</div>
+				<div class="container">
+					<div class="portfolio-content">
+						<!--<div class="isotope">-->
+							<div class="row">
 
-		</section><!--/.education-->
-		<!--education end -->
+                <div class="single-about-txt">
+								<h3>
+									Mexico City Security Map
+								</h3>
+								<p>
+									During the last two weeks of the bootcamp, three mates and I developed an app showing the crimes in Mexico City, plus a map showing a forecast of the crimes in Mexico City during the next 6 months: <br><br>   https://safety-map.streamlit.app/
+								</p>
+                <div class="item">
+                  <img src="assets/images/portfolio/p1.jpg" alt="portfolio image"/>
+                </div><!-- /.item -->
 
-		<!--skills start -->
+                <div class="single-about-txt">
+                <h3>
+                <br><br>Mexico City Ecobici Map
+                </h3>
+                <p>
+                  Later I developed a map showing the most frequent* Ecobici trips from a bike station to a bike station during March, 2023.
+                <br><br>*200 or more trips
+                </p>
+                <iframe src="ecobici_flow_map.html" width="800" height="600"></iframe>
+
+
+                <div class="single-about-txt">
+                  <h3>
+                  <br><br>World Heritage Sites by year
+                  </h3>
+                  <p>
+                    I also created a map showing the location of the UNESCO World Heritage Sites 2019 but color coded by their year of inscription.<br>
+                    Some trends are easier to find this way, for example that in the Middle East and Far East Asia there are almost no sites inscribed during the first decade of the Heritage list, but there are several sites inscribed during the last decades.
+                  </p>
+                  <iframe src="heritage_map_2019.html" width="1200" height="700"></iframe>
+
+                  <div class="single-about-txt">
+                    <h3>
+                    <br><br>Public Wifi access points in Mexico City
+                    </h3>
+                    <p>
+                      This map shows wifi access according to open data from Mexico City government.<br>
+                      Most of the city is covered with wifi spots, except:
+                      <br>-Few wealthy neighborhoods with low population density because there are very big houses.
+                      <br>-Some neighborhoods that are not open to public transit.
+                    </p>
+                    <iframe src="wifi_cdmx.html" width="900" height="900"></iframe>
+
+							</div><!-- /.row -->
+						<!--</div>--><!--/.isotope-->
+					</div><!--/.gallery-content-->
+				</div><!--/.container-->
+			</div><!--/.portfolio-details-->
+
+		</section><!--/.portfolio-->
+		<!--portfolio end -->
+
+    <!--skills start -->
 		<section id="skills" class="skills">
-				<div class="skill-content">
-					<div class="section-heading text-center">
-						<h2>skills</h2>
-					</div>
-					<div class="container">
-						<div class="row">
-							<div class="col-md-6">
-								<div class="single-skill-content">
-									<div class="barWrapper">
-										<span class="progressText">python - skilled</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-												<div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
+      <div class="skill-content">
+        <div class="section-heading text-center">
+          <h2>skills</h2>
+        </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="single-skill-content">
+                <div class="barWrapper">
+                  <span class="progressText">python - skilled</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                      <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
 
-												</div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-									<div class="barWrapper">
-										<span class="progressText">sql - skilled</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-											   <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
+                      </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+                <div class="barWrapper">
+                  <span class="progressText">sql - skilled</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                       <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
 
-											   </div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-									<div class="barWrapper">
-										<span class="progressText">github - skilled</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-											   <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
+                       </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+                <div class="barWrapper">
+                  <span class="progressText">github - skilled</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                       <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
 
-											   </div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-									<div class="barWrapper">
-										<span class="progressText">google cloud platform - competent</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-											   <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
+                       </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+                <div class="barWrapper">
+                  <span class="progressText">google cloud platform - competent</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                       <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
 
-											   </div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-								</div>
-							</div>
-							<div class="col-md-6">
-								<div class="single-skill-content">
-									<div class="barWrapper">
-										<span class="progressText">machine learning - competent</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-												<div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
+                       </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="single-skill-content">
+                <div class="barWrapper">
+                  <span class="progressText">machine learning - competent</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                      <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
 
-												</div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-									<div class="barWrapper">
-										<span class="progressText">deep learning - competent</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-											   <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
+                      </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+                <div class="barWrapper">
+                  <span class="progressText">deep learning - competent</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                       <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
 
-											   </div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-									<div class="barWrapper">
-										<span class="progressText">power bi - competent</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-											   <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
+                       </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+                <div class="barWrapper">
+                  <span class="progressText">power bi - competent</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                       <div class="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="50" aria-valuemax="100" style="">
 
-											   </div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-									<div class="barWrapper">
-										<span class="progressText"> excel - skilled</span>
-										<div class="single-progress-txt">
-											<div class="progress ">
-											   <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
+                       </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+                <div class="barWrapper">
+                  <span class="progressText"> excel - skilled</span>
+                  <div class="single-progress-txt">
+                    <div class="progress ">
+                       <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="30" aria-valuemax="100" style="">
 
-											   </div>
-											</div>
-											<h3></h3>
-										</div>
-									</div><!-- /.barWrapper -->
-								</div>
-							</div>
-						</div><!-- /.row -->
-					</div>	<!-- /.container -->
-				</div><!-- /.skill-content-->
+                       </div>
+                    </div>
+                    <h3></h3>
+                  </div>
+                </div><!-- /.barWrapper -->
+              </div>
+            </div>
+          </div><!-- /.row -->
+        </div>	<!-- /.container -->
+      </div><!-- /.skill-content-->
 
-		</section><!--/.skills-->
-		<!--skills end -->
+    </section><!--/.skills-->
+    <!--skills end -->
 
-		<!--experience start -->
+    <!--experience start -->
 		<section id="experience" class="experience">
 			<div class="section-heading text-center">
 				<h2>experience</h2>
@@ -555,6 +534,95 @@
 		</section><!--/.experience-->
 		<!--experience end -->
 
+		<!--education start -->
+		<section id="education" class="education">
+			<div class="section-heading text-center">
+				<h2>education</h2>
+			</div>
+			<div class="container">
+				<div class="education-horizontal-timeline">
+					<div class="row">
+						<div class="col-sm-4">
+							<div class="single-horizontal-timeline">
+								<div class="experience-time">
+									<h2>April 2023 - July 2023</h2>
+									<h3>Data <span>Science </span> bootcamp</h3>
+								</div><!--/.experience-time-->
+								<div class="timeline-horizontal-border">
+									<i class="fa fa-circle" aria-hidden="true"></i>
+									<span class="single-timeline-horizontal"></span>
+								</div>
+								<div class="timeline">
+									<div class="timeline-content">
+										<h4 class="title">
+											Le Wagon
+										</h4>
+										<h5>Mexico City, Mexico</h5>
+										<p class="description">
+											This was an intensive 10 weeks bootcamp that culminated with a 2 weeks project: https://safety-map.streamlit.app
+										</p>
+									</div><!--/.timeline-content-->
+								</div><!--/.timeline-->
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="single-horizontal-timeline">
+								<div class="experience-time">
+									<h2>September 2016 - December 2016</h2>
+									<h3>Construction <span>Diploma </span> </h3>
+								</div><!--/.experience-time-->
+								<div class="timeline-horizontal-border">
+									<i class="fa fa-circle" aria-hidden="true"></i>
+									<span class="single-timeline-horizontal"></span>
+								</div>
+								<div class="timeline">
+									<div class="timeline-content">
+										<h4 class="title">
+											unam, architecture faculty
+										</h4>
+										<h5>Mexico City, Mexico</h5>
+										<p class="description">
+											Course about the fundamentals of construction, from soil mechanics to the last aesthetic layers of a building.
+										</p>
+									</div><!--/.timeline-content-->
+								</div><!--/.timeline-->
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="single-horizontal-timeline">
+								<div class="experience-time">
+									<h2>2007 - 2011</h2>
+									<h3>bachelor <span>of </span> mechanical-electrical engineering</h3>
+								</div><!--/.experience-time-->
+								<div class="timeline-horizontal-border">
+									<i class="fa fa-circle" aria-hidden="true"></i>
+									<span class="single-timeline-horizontal spacial-horizontal-line
+									"></span>
+								</div>
+								<div class="timeline">
+									<div class="timeline-content">
+										<h4 class="title">
+											itesm, ccm
+										</h4>
+										<h5>Mexico City, Mexico</h5>
+										<p class="description">
+											Studies including static and dynamic mechanics, elecrical circuits analysis, thermodynamics, material mechanics, electrical machines, statistics, etc.
+										</p>
+									</div><!--/.timeline-content-->
+								</div><!--/.timeline-->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</section><!--/.education-->
+		<!--education end -->
+
+
+
+
+
 		<!--profiles start -->
 		<!--<section id="profiles" class="profiles">
 			<div class="profiles-details">
@@ -679,77 +747,15 @@
 									</div>
 								</div>
 							</div>-->
-						</div>
+						<!--</div>
 					</div>
 				</div>
 			</div>
 
-		</section><!--/.profiles-->
+		</section>--><!--/.profiles-->
 		<!--profiles end -->
 
-		<!--portfolio start -->
-		<section id="portfolio" class="portfolio">
-			<div class="portfolio-details">
-				<div class="section-heading text-center">
-					<h2>portfolio</h2>
-				</div>
-				<div class="container">
-					<div class="portfolio-content">
-						<!--<div class="isotope">-->
-							<div class="row">
 
-                <div class="single-about-txt">
-								<h3>
-									Mexico City Security Map
-								</h3>
-								<p>
-									During the last two weeks of the bootcamp, three mates and I developed an app showing the crimes in Mexico City, plus a map showing a forecast of the crimes in Mexico City during the next 6 months: <br><br>   https://safety-map.streamlit.app/
-								</p>
-                <div class="item">
-                  <img src="assets/images/portfolio/p1.jpg" alt="portfolio image"/>
-                </div><!-- /.item -->
-
-                <div class="single-about-txt">
-                <h3>
-                <br><br>Mexico City Ecobici Map
-                </h3>
-                <p>
-                  Later I developed a map showing the most frequent* Ecobici trips from a bike station to a bike station during March, 2023.
-                <br><br>*200 or more trips
-                </p>
-                <iframe src="ecobici_flow_map.html" width="800" height="600"></iframe>
-
-
-                <div class="single-about-txt">
-                  <h3>
-                  <br><br>World Heritage Sites by year
-                  </h3>
-                  <p>
-                    I also created a map showing the location of the UNESCO World Heritage Sites 2019 but color coded by their year of inscription.<br>
-                    Some trends are easier to find this way, for example that in the Middle East and Far East Asia there are almost no sites inscribed during the first decade of the Heritage list, but there are several sites inscribed during the last decades.
-                  </p>
-                  <iframe src="heritage_map_2019.html" width="1200" height="700"></iframe>
-
-                  <div class="single-about-txt">
-                    <h3>
-                    <br><br>Public Wifi access points in Mexico City
-                    </h3>
-                    <p>
-                      This map shows wifi access according to open data from Mexico City government.<br>
-                      Most of the city is covered with wifi spots, except:
-                      <br>-Few wealthy neighborhoods with low population density because there are very big houses.
-                      <br>-Some neighborhoods that are not open to public transit.
-                    </p>
-                    <iframe src="wifi_cdmx.html" width="800" height="600"></iframe>
-
-							</div><!-- /.row -->
-						<!--</div>--><!--/.isotope-->
-					</div><!--/.gallery-content-->
-				</div><!--/.container-->
-			</div><!--/.portfolio-details-->
-
-		</section><!--/.portfolio-->
-		<!--portfolio end -->
 
 		<!--clients start -->
 		<!--<section id="clients" class="clients">
