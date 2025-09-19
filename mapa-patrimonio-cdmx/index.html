@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa del Patrimonio Cultural - CDMX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .controls {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0,0,0,0.3);
+        }
+        
+        .admin-controls {
+            margin-left: auto;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-admin {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-admin:hover {
+            background: #c0392b;
+        }
+        
+        .btn-logout {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-logout:hover {
+            background: #7f8c8d;
+        }
+        
+        #map {
+            height: calc(100vh - 140px);
+            width: 100%;
+        }
+        
+        .popup-content {
+            max-width: 300px;
+            font-size: 0.875rem;
+        }
+        
+        .popup-address {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .popup-description {
+            color: #666;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        
+        .status-section {
+            border-top: 1px solid #eee;
+            padding-top: 0.75rem;
+            margin-top: 0.75rem;
+        }
+        
+        .status-current {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        .status-btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-login {
+            background: #27ae60;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .admin-controls {
+                margin-left: 0;
+                justify-content: center;
+            }
+            
+            .legend {
+                justify-content: center;
+            }
+            
+            #map {
+                height: calc(100vh - 180px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Mapa del Patrimonio Cultural - Ciudad de México</h1>
+    </div>
+    
+    <div class="controls">
+        <div class="legend" id="legend">
+            <!-- Legend will be populated dynamically -->
+        </div>
+        
+        <div class="admin-controls">
+            <button id="adminBtn" class="btn btn-admin">Modo Administrador</button>
+            <button id="saveBtn" class="btn btn-logout" style="display: none;">Cambios Guardados</button>
+            <button id="logoutBtn" class="btn btn-logout" style="display: none;">Cerrar Sesión</button>
+        </div>
+    </div>
+    
+    <div id="map"></div>
+    
+    <!-- Admin Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h3>Acceso de Administrador</h3>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeLoginModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-login">Iniciar Sesión</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Configuration
+        const ADMIN_PASSWORD = 'patrimonio2024'; // Change this password!
+        const MAP_CENTER = [19.35, -99.17]; // Coyoacán area
+        const MAP_ZOOM = 14;
+        
+        // Colors for different categories
+        const CATEGORY_COLORS = {
+            'INAH': '#e74c3c',           // RED
+            'INBA': '#3498db',           // BLUE  
+            'SEDUVI': '#27ae60',         // GREEN
+            'INAH, INBA': '#f1c40f',     // YELLOW
+            'INAH, SEDUVI': '#e67e22',   // ORANGE
+            'INBA, SEDUVI': '#9b59b6',   // PURPLE
+            'INAH, INBA, SEDUVI': '#2c3e50', // BLACK
+            'DEFAULT': '#95a5a6'         // GRAY for unknown
+        };
+        
+        // Global variables
+        let map;
+        let markersLayer;
+        let isAdmin = false;
+        let currentData = [];
+        let statusData = {}; // Store manual status tags
+        let hasUnsavedChanges = false;
+        
+        // Initialize the map
+        function initMap() {
+            map = L.map('map').setView(MAP_CENTER, MAP_ZOOM);
+            
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Create markers layer group
+            markersLayer = L.layerGroup().addTo(map);
+            
+            // Load both CSV and status data
+            Promise.all([loadCSVData(), loadStatusData()])
+                .then(() => {
+                    createMarkers(currentData);
+                    updateLegend();
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    alert('Error cargando los datos. Verifica que los archivos CSV y JSON estén disponibles.');
+                });
+        }
+        
+        // Load CSV data
+        async function loadCSVData() {
+            try {
+                const response = await fetch('patrimonio-data.csv');
+                if (!response.ok) {
+                    throw new Error('No se pudo cargar el archivo CSV');
+                }
+                const csvText = await response.text();
+                currentData = parseCSV(csvText);
+                console.log(`Loaded ${currentData.length} points from CSV`);
+            } catch (error) {
+                console.error('Error loading CSV:', error);
+                // Fall back to sample data for testing
+                loadSampleData();
+            }
+        }
+        
+        // Parse CSV text to JSON
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                if (values.length === headers.length) {
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header.trim()] = values[index].trim();
+                    });
+                    
+                    // Convert coordinates to numbers
+                    row.X = parseFloat(row.X);
+                    row.Y = parseFloat(row.Y);
+                    row.INDICE = parseInt(row.INDICE);
+                    
+                    // Only add if coordinates are valid
+                    if (!isNaN(row.X) && !isNaN(row.Y) && !isNaN(row.INDICE)) {
+                        data.push(row);
+                    }
+                }
+            }
+            
+            return data;
+        }
+        
+        // Parse a single CSV line (handles commas within quoted fields)
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+        // Load status data from JSON file
+        async function loadStatusData() {
+            try {
+                const response = await fetch('status-data.json');
+                if (response.ok) {
+                    statusData = await response.json();
+                    console.log(`Loaded status data for ${Object.keys(statusData).length} points`);
+                } else {
+                    console.log('No status data file found, will create default status data');
+                    statusData = {};
+                }
+            } catch (error) {
+                console.log('Could not load status data, will create default status data');
+                statusData = {};
+            }
+        }
+        
+        // Create default status data for all points
+        function createDefaultStatusData() {
+            const newStatusData = {};
+            currentData.forEach(point => {
+                if (!statusData.hasOwnProperty(point.INDICE)) {
+                    newStatusData[point.INDICE] = 'desconocido';
+                }
+            });
+            
+            // Merge with existing status data
+            statusData = { ...statusData, ...newStatusData };
+            
+            console.log(`Created default status for ${Object.keys(newStatusData).length} new points`);
+        }
+        // Sample data loader (fallback for testing)
+        function loadSampleData() {
+            const sampleData = [
+                {
+                    INDICE: 29,
+                    SP_ALCALDIA: 'COYOACAN',
+                    SP_CALLE: 'BRUSELAS',
+                    SP_NUMERO: '99',
+                    SP_COLONIA: 'DEL CARMEN',
+                    SP_CODIGO: '04100',
+                    SP_NOMBRE: 'INBA',
+                    SP_DESCRIP: 'Inmueble afecto al patrimonio cultural urbano de valor artístico por el Instituto Nacional de Bellas Artes dentro de los polígonos de Área de Conservación Patrimonial.',
+                    X: -99.1687176492,
+                    Y: 19.3575053725
+                },
+                {
+                    INDICE: 52,
+                    SP_ALCALDIA: 'COYOACAN',
+                    SP_CALLE: 'BRUSELAS',
+                    SP_NUMERO: '91',
+                    SP_COLONIA: 'DEL CARMEN',
+                    SP_CODIGO: '04100',
+                    SP_NOMBRE: 'SEDUVI',
+                    SP_DESCRIP: 'Inmueble afecto al patrimonio cultural urbano de valor patrimonial por la Secretaría de Desarrollo Urbano y Vivienda dentro de los polígonos de Área de Conservación Patrimonial.',
+                    X: -99.168405862,
+                    Y: 19.3576343636
+                }
+                // Add more sample data or load from your CSV file
+            ];
+            
+            currentData = sampleData;
+            createMarkers(currentData);
+            updateLegend();
+        }
+        
+        // Create markers from data
+        function createMarkers(data) {
+            markersLayer.clearLayers();
+            
+            // Create default status data if needed
+            createDefaultStatusData();
+            
+            data.forEach(point => {
+                const category = point.SP_NOMBRE || 'DEFAULT';
+                const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.DEFAULT;
+                
+                // Get status and modify marker appearance if destroyed
+                const status = statusData[point.INDICE] || 'desconocido';
+                const isDestroyed = status === 'destruido';
+                
+                const marker = L.circleMarker([point.Y, point.X], {
+                    radius: isDestroyed ? 4 : 6,
+                    fillColor: color,
+                    color: isDestroyed ? '#333' : 'white',
+                    weight: isDestroyed ? 3 : 2,
+                    opacity: isDestroyed ? 0.7 : 1,
+                    fillOpacity: isDestroyed ? 0.4 : 0.8,
+                    dashArray: isDestroyed ? '5,5' : null
+                });
+                
+                const popupContent = createPopupContent(point);
+                marker.bindPopup(popupContent, { maxWidth: 350 });
+                
+                markersLayer.addLayer(marker);
+            });
+        }
+        
+        // Create popup content
+        function createPopupContent(point) {
+            const address = `${point.SP_CALLE} ${point.SP_NUMERO}, ${point.SP_COLONIA}`;
+            const currentStatus = statusData[point.INDICE] || 'desconocido';
+            
+            let popupHtml = `
+                <div class="popup-content">
+                    <div class="popup-address">${address}</div>
+                    <div style="color: #666; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                        ${point.SP_ALCALDIA} - ${point.SP_CODIGO}
+                    </div>
+                    <div style="margin-bottom: 0.75rem;"><strong>Categoría:</strong> ${point.SP_NOMBRE}</div>
+            `;
+            
+            if (isAdmin) {
+                popupHtml += `
+                    <div class="status-section">
+                        <div class="status-current">Estado: <span style="color: ${getStatusColor(currentStatus)}">${getStatusLabel(currentStatus)}</span></div>
+                        <div class="status-controls">
+                            <button class="status-btn ${currentStatus === 'existente' ? 'active' : ''}" 
+                                    onclick="updateStatus(${point.INDICE}, 'existente')">Existente</button>
+                            <button class="status-btn ${currentStatus === 'destruido' ? 'active' : ''}" 
+                                    onclick="updateStatus(${point.INDICE}, 'destruido')">Destruido</button>
+                            <button class="status-btn ${currentStatus === 'desconocido' ? 'active' : ''}" 
+                                    onclick="updateStatus(${point.INDICE}, 'desconocido')">Desconocido</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                popupHtml += `
+                    <div class="status-section">
+                        <div><strong>Estado:</strong> <span style="color: ${getStatusColor(currentStatus)}">${getStatusLabel(currentStatus)}</span></div>
+                    </div>
+                `;
+            }
+            
+            popupHtml += '</div>';
+            return popupHtml;
+        }
+        
+        // Status helper functions
+        function getStatusColor(status) {
+            switch(status) {
+                case 'existente': return '#27ae60';
+                case 'destruido': return '#e74c3c';
+                case 'desconocido': return '#f39c12';
+                default: return '#f39c12';
+            }
+        }
+        
+        function getStatusLabel(status) {
+            switch(status) {
+                case 'existente': return 'Existente';
+                case 'destruido': return 'Destruido';
+                case 'desconocido': return 'Desconocido';
+                default: return 'Desconocido';
+            }
+        }
+        
+        // Update status function
+        function updateStatus(indice, newStatus) {
+            statusData[indice] = newStatus;
+            hasUnsavedChanges = true;
+            
+            // Refresh markers to update popups
+            createMarkers(currentData);
+            
+            // Update button text to show unsaved changes
+            updateSaveButton();
+            
+            console.log(`Status updated for point ${indice}: ${newStatus}`);
+        }
+        
+        // Update save button text
+        function updateSaveButton() {
+            const saveBtn = document.getElementById('saveBtn');
+            if (hasUnsavedChanges) {
+                saveBtn.textContent = 'Guardar Cambios *';
+                saveBtn.style.background = '#e67e22';
+            } else {
+                saveBtn.textContent = 'Cambios Guardados';
+                saveBtn.style.background = '#27ae60';
+            }
+        }
+        
+        // Export status data
+        function exportStatusData() {
+            const dataStr = JSON.stringify(statusData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'status-data.json';
+            link.click();
+            
+            hasUnsavedChanges = false;
+            updateSaveButton();
+            
+            alert('Archivo status-data.json descargado. Súbelo a tu servidor para compartir los cambios con otros usuarios.');
+        }
+        
+        // Update legend
+        function updateLegend() {
+            const legendEl = document.getElementById('legend');
+            const categories = [...new Set(currentData.map(p => p.SP_NOMBRE))];
+            
+            legendEl.innerHTML = categories.map(category => {
+                const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.DEFAULT;
+                return `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: ${color}"></div>
+                        <span>${category}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Admin authentication
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+        
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+        
+        function login(password) {
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById('adminBtn').style.display = 'none';
+                document.getElementById('saveBtn').style.display = 'inline-block';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                closeLoginModal();
+                
+                // Update save button state
+                updateSaveButton();
+                
+                // Refresh markers to show admin controls
+                createMarkers(currentData);
+                
+                alert('Modo administrador activado');
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        }
+        
+        function logout() {
+            if (hasUnsavedChanges) {
+                if (!confirm('Tienes cambios sin guardar. ¿Estás seguro que quieres cerrar sesión?')) {
+                    return;
+                }
+            }
+            
+            isAdmin = false;
+            hasUnsavedChanges = false;
+            document.getElementById('adminBtn').style.display = 'inline-block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'none';
+            
+            // Refresh markers to hide admin controls
+            createMarkers(currentData);
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            
+            // Admin button
+            document.getElementById('adminBtn').addEventListener('click', showLoginModal);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('saveBtn').addEventListener('click', exportStatusData);
+            
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const password = document.getElementById('password').value;
+                login(password);
+            });
+            
+            // Close modal on outside click
+            document.getElementById('loginModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeLoginModal();
+                }
+            });
+        });
+        
+        // Function to load CSV data (you'll need to implement this)
+        function loadCSVData(csvText) {
+            // This function is now replaced by the loadCSVData() async function above
+            // But kept for backward compatibility
+            currentData = parseCSV(csvText);
+            createMarkers(currentData);
+            updateLegend();
+        }
+        
+        // Generate initial status data JSON for download
+        function generateInitialStatusData() {
+            if (currentData.length === 0) {
+                alert('Primero carga los datos CSV');
+                return;
+            }
+            
+            const initialStatus = {};
+            currentData.forEach(point => {
+                initialStatus[point.INDICE] = 'desconocido';
+            });
+            
+            const dataStr = JSON.stringify(initialStatus, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'status-data-initial.json';
+            link.click();
+            
+            alert(`Archivo inicial generado con ${Object.keys(initialStatus).length} puntos. Renómbralo a 'status-data.json' y súbelo a tu servidor.`);
+        }
+    </script>
+</body>
+</html>
