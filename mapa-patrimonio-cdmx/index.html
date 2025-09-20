@@ -35,35 +35,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
-        .file-upload {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .file-label {
-            padding: 0.5rem 1rem;
-            background: #3498db;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: background-color 0.2s;
-        }
-        
-        .file-label:hover {
-            background: #2980b9;
-        }
-        
-        .file-status {
-            font-size: 0.875rem;
-            color: #666;
-        }
-        
         .legend {
             display: flex;
             gap: 1rem;
@@ -270,12 +241,6 @@
     </div>
     
     <div class="controls">
-        <div class="file-upload">
-            <label for="csvFile" class="file-label">Cargar CSV</label>
-            <input type="file" id="csvFile" class="file-input" accept=".csv" />
-            <span id="csvStatus" class="file-status">Sin archivo</span>
-        </div>
-        
         <div class="legend" id="legend">
             <!-- Legend will be populated dynamically -->
         </div>
@@ -395,12 +360,12 @@
         
         // Load both CSV and status data (optional files)
         async function loadDataFiles() {
-            console.log('Intentando cargar archivos...');
+            console.log('Cargando archivos del servidor...');
             
             try {
-                // Try to load CSV first
+                // Load CSV first
                 await loadCSVData();
-                console.log('CSV cargado exitosamente');
+                console.log('CSV cargado exitosamente del servidor');
                 
                 // Then try to load status data
                 await loadStatusData();
@@ -409,11 +374,17 @@
                 // Create markers and legend
                 createMarkers(currentData);
                 updateLegend();
-                updateFileStatus();
                 
             } catch (error) {
-                console.log('Archivos no encontrados, usa el botón "Cargar CSV"');
-                updateFileStatus('No se encontraron archivos. Usa "Cargar CSV" para comenzar.');
+                console.error('Error cargando archivos:', error);
+                // Try to use saved data as fallback
+                if (currentData.length === 0) {
+                    console.log('Intentando usar datos guardados como respaldo...');
+                    loadSavedData();
+                    if (currentData.length === 0) {
+                        alert('No se pudieron cargar los datos. Verifica que patrimonio-data.csv esté en el servidor.');
+                    }
+                }
             }
         }
         
@@ -421,81 +392,67 @@
         async function loadCSVData() {
             const response = await fetch('patrimonio-data.csv');
             if (!response.ok) {
-                throw new Error('No se pudo cargar el archivo CSV');
+                throw new Error(`Error cargando CSV: ${response.status}`);
             }
             const csvText = await response.text();
             currentData = parseCSV(csvText);
+            
+            // Save to localStorage for offline use
+            saveDataToStorage();
+            
             console.log(`Loaded ${currentData.length} points from CSV`);
             return currentData;
         }
         
         // Handle CSV file upload
         function handleCSVUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    currentData = parseCSV(e.target.result);
-                    console.log(`Loaded ${currentData.length} points from uploaded CSV`);
-                    
-                    // Save CSV data to localStorage
-                    saveDataToStorage();
-                    
-                    // Load or create status data
-                    loadStatusData().catch(() => {
-                        console.log('No status data found, will create defaults');
-                        statusData = {};
-                    }).finally(() => {
-                        createMarkers(currentData);
-                        updateLegend();
-                        updateFileStatus(`✓ ${currentData.length} puntos cargados y guardados`);
-                    });
-                    
-                } catch (error) {
-                    console.error('Error parsing CSV:', error);
-                    updateFileStatus('Error: Formato de CSV inválido');
-                }
-            };
-            reader.readAsText(file);
+            // This function is no longer used but kept for compatibility
+            console.log('CSV upload function deprecated - loading from server instead');
         }
         
         // Update file status message
         function updateFileStatus(message = null) {
-            const statusEl = document.getElementById('csvStatus');
-            if (message) {
-                statusEl.textContent = message;
-            } else if (currentData.length > 0) {
-                statusEl.textContent = `✓ ${currentData.length} puntos`;
-                statusEl.style.color = '#27ae60';
-            } else {
-                statusEl.textContent = 'Sin archivo';
-                statusEl.style.color = '#666';
-            }
+            // This function is no longer used but kept for compatibility
+            console.log('File status:', message || `${currentData.length} points loaded`);
         }
         
-        // Parse CSV text to JSON
+        // Parse CSV text to JSON (optimized - excludes description)
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
             const headers = lines[0].split(',');
             const data = [];
             
+            // Find column indices for required fields
+            const colIndices = {};
+            const requiredCols = ['INDICE', 'SP_ALCALDIA', 'SP_CALLE', 'SP_NUMERO', 'SP_COLONIA', 'SP_CODIGO', 'SP_NOMBRE', 'X', 'Y'];
+            
+            headers.forEach((header, index) => {
+                const cleanHeader = header.trim();
+                if (requiredCols.includes(cleanHeader)) {
+                    colIndices[cleanHeader] = index;
+                }
+            });
+            
+            // Parse rows but skip SP_DESCRIP for performance
             for (let i = 1; i < lines.length; i++) {
                 const values = parseCSVLine(lines[i]);
-                if (values.length === headers.length) {
+                if (values.length >= headers.length) {
                     const row = {};
-                    headers.forEach((header, index) => {
-                        row[header.trim()] = values[index].trim();
-                    });
+                    
+                    // Only extract needed columns
+                    for (const col of requiredCols) {
+                        if (colIndices[col] !== undefined) {
+                            row[col] = values[colIndices[col]].trim();
+                        }
+                    }
                     
                     // Convert coordinates to numbers
                     row.X = parseFloat(row.X);
                     row.Y = parseFloat(row.Y);
                     row.INDICE = parseInt(row.INDICE);
                     
-                    // Only add if coordinates are valid
-                    if (!isNaN(row.X) && !isNaN(row.Y) && !isNaN(row.INDICE)) {
+                    // Only add if coordinates are valid and required fields exist
+                    if (!isNaN(row.X) && !isNaN(row.Y) && !isNaN(row.INDICE) && row.SP_NOMBRE) {
                         data.push(row);
                     }
                 }
@@ -567,7 +524,6 @@
                     SP_COLONIA: 'DEL CARMEN',
                     SP_CODIGO: '04100',
                     SP_NOMBRE: 'INBA',
-                    SP_DESCRIP: 'Inmueble afecto al patrimonio cultural urbano de valor artístico por el Instituto Nacional de Bellas Artes dentro de los polígonos de Área de Conservación Patrimonial.',
                     X: -99.1687176492,
                     Y: 19.3575053725
                 },
@@ -579,7 +535,6 @@
                     SP_COLONIA: 'DEL CARMEN',
                     SP_CODIGO: '04100',
                     SP_NOMBRE: 'SEDUVI',
-                    SP_DESCRIP: 'Inmueble afecto al patrimonio cultural urbano de valor patrimonial por la Secretaría de Desarrollo Urbano y Vivienda dentro de los polígonos de Área de Conservación Patrimonial.',
                     X: -99.168405862,
                     Y: 19.3576343636
                 },
@@ -591,7 +546,6 @@
                     SP_COLONIA: 'DEL CARMEN',
                     SP_CODIGO: '04100',
                     SP_NOMBRE: 'INAH',
-                    SP_DESCRIP: 'Inmueble afecto al patrimonio cultural urbano de valor artístico.',
                     X: -99.1679314082,
                     Y: 19.3559284476
                 },
@@ -603,7 +557,6 @@
                     SP_COLONIA: 'DEL CARMEN',
                     SP_CODIGO: '04100',
                     SP_NOMBRE: 'INAH, INBA',
-                    SP_DESCRIP: 'Inmueble con doble catalogación.',
                     X: -99.1674994362,
                     Y: 19.3581516404
                 },
@@ -615,7 +568,6 @@
                     SP_COLONIA: 'DEL CARMEN',
                     SP_CODIGO: '04100',
                     SP_NOMBRE: 'INAH, INBA, SEDUVI',
-                    SP_DESCRIP: 'Inmueble con triple catalogación.',
                     X: -99.1674702039,
                     Y: 19.358052668
                 }
@@ -863,9 +815,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
             
-            // CSV file upload
-            document.getElementById('csvFile').addEventListener('change', handleCSVUpload);
-            
             // Admin button
             document.getElementById('adminBtn').addEventListener('click', showLoginModal);
             document.getElementById('logoutBtn').addEventListener('click', logout);
@@ -885,13 +834,6 @@
                     closeLoginModal();
                 }
             });
-            
-            // Add sample data button for testing
-            setTimeout(() => {
-                if (currentData.length === 0) {
-                    console.log('No data loaded, you can use loadSampleData() in console for testing');
-                }
-            }, 2000);
         });
         
         // Function to load CSV data (you'll need to implement this)
