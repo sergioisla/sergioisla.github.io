@@ -282,7 +282,8 @@
         
         <div class="admin-controls">
             <button id="adminBtn" class="btn btn-admin">Modo Administrador</button>
-            <button id="saveBtn" class="btn btn-logout" style="display: none;">Cambios Guardados</button>
+            <button id="saveBtn" class="btn btn-logout" style="display: none;">Guardar Cambios</button>
+            <button id="downloadBtn" class="btn btn-logout" style="display: none;">Descargar JSON</button>
             <button id="logoutBtn" class="btn btn-logout" style="display: none;">Cerrar Sesión</button>
         </div>
     </div>
@@ -345,8 +346,51 @@
             // Create markers layer group
             markersLayer = L.layerGroup().addTo(map);
             
+            // Load saved data from localStorage first
+            loadSavedData();
+            
             // Try to load files, but don't fail if they don't exist
             loadDataFiles();
+        }
+        
+        // Load saved data from localStorage
+        function loadSavedData() {
+            try {
+                // Load CSV data from localStorage
+                const savedCSV = localStorage.getItem('heritageMapCSVData');
+                if (savedCSV) {
+                    currentData = JSON.parse(savedCSV);
+                    console.log(`Loaded ${currentData.length} points from localStorage`);
+                }
+                
+                // Load status data from localStorage
+                const savedStatus = localStorage.getItem('heritageMapStatusData');
+                if (savedStatus) {
+                    statusData = JSON.parse(savedStatus);
+                    console.log(`Loaded status data for ${Object.keys(statusData).length} points from localStorage`);
+                }
+                
+                // Update display if we have data
+                if (currentData.length > 0) {
+                    createMarkers(currentData);
+                    updateLegend();
+                    updateFileStatus();
+                }
+                
+            } catch (error) {
+                console.log('No saved data found or error loading:', error);
+            }
+        }
+        
+        // Save data to localStorage
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem('heritageMapCSVData', JSON.stringify(currentData));
+                localStorage.setItem('heritageMapStatusData', JSON.stringify(statusData));
+                console.log('Data saved to localStorage');
+            } catch (error) {
+                console.error('Error saving data:', error);
+            }
         }
         
         // Load both CSV and status data (optional files)
@@ -396,6 +440,9 @@
                     currentData = parseCSV(e.target.result);
                     console.log(`Loaded ${currentData.length} points from uploaded CSV`);
                     
+                    // Save CSV data to localStorage
+                    saveDataToStorage();
+                    
                     // Load or create status data
                     loadStatusData().catch(() => {
                         console.log('No status data found, will create defaults');
@@ -403,7 +450,7 @@
                     }).finally(() => {
                         createMarkers(currentData);
                         updateLegend();
-                        updateFileStatus(`✓ ${currentData.length} puntos cargados`);
+                        updateFileStatus(`✓ ${currentData.length} puntos cargados y guardados`);
                     });
                     
                 } catch (error) {
@@ -677,13 +724,33 @@
             statusData[indice] = newStatus;
             hasUnsavedChanges = true;
             
-            // Refresh markers to update popups
-            createMarkers(currentData);
+            // Save to localStorage immediately
+            saveDataToStorage();
+            
+            // Update only the popup content without recreating all markers
+            updateMarkerPopups();
             
             // Update button text to show unsaved changes
             updateSaveButton();
             
             console.log(`Status updated for point ${indice}: ${newStatus}`);
+        }
+        
+        // Update marker popups without recreating markers
+        function updateMarkerPopups() {
+            markersLayer.eachLayer(function(marker) {
+                // Find the corresponding data point
+                const latLng = marker.getLatLng();
+                const point = currentData.find(p => 
+                    Math.abs(p.Y - latLng.lat) < 0.0001 && 
+                    Math.abs(p.X - latLng.lng) < 0.0001
+                );
+                
+                if (point) {
+                    const newContent = createPopupContent(point);
+                    marker.setPopupContent(newContent);
+                }
+            });
         }
         
         // Update save button text
@@ -698,8 +765,24 @@
             }
         }
         
-        // Export status data
-        function exportStatusData() {
+        // Save changes (mark as saved)
+        function saveChanges() {
+            hasUnsavedChanges = false;
+            updateSaveButton();
+            
+            // Also save to localStorage
+            saveDataToStorage();
+            
+            alert('Cambios guardados localmente. Usa "Descargar JSON" para obtener el archivo actualizado.');
+        }
+        
+        // Export status data for download
+        function downloadStatusData() {
+            if (Object.keys(statusData).length === 0) {
+                alert('No hay datos de estado para descargar');
+                return;
+            }
+            
             const dataStr = JSON.stringify(statusData, null, 2);
             const dataBlob = new Blob([dataStr], {type: 'application/json'});
             
@@ -708,10 +791,7 @@
             link.download = 'status-data.json';
             link.click();
             
-            hasUnsavedChanges = false;
-            updateSaveButton();
-            
-            alert('Archivo status-data.json descargado. Súbelo a tu servidor para compartir los cambios con otros usuarios.');
+            console.log('Status data downloaded');
         }
         
         // Update legend
@@ -745,6 +825,7 @@
                 isAdmin = true;
                 document.getElementById('adminBtn').style.display = 'none';
                 document.getElementById('saveBtn').style.display = 'inline-block';
+                document.getElementById('downloadBtn').style.display = 'inline-block';
                 document.getElementById('logoutBtn').style.display = 'inline-block';
                 closeLoginModal();
                 
@@ -771,6 +852,7 @@
             hasUnsavedChanges = false;
             document.getElementById('adminBtn').style.display = 'inline-block';
             document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('downloadBtn').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'none';
             
             // Refresh markers to hide admin controls
@@ -787,7 +869,8 @@
             // Admin button
             document.getElementById('adminBtn').addEventListener('click', showLoginModal);
             document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('saveBtn').addEventListener('click', exportStatusData);
+            document.getElementById('saveBtn').addEventListener('click', saveChanges);
+            document.getElementById('downloadBtn').addEventListener('click', downloadStatusData);
             
             // Login form
             document.getElementById('loginForm').addEventListener('submit', function(e) {
