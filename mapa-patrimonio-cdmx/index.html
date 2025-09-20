@@ -390,18 +390,40 @@
         
         // Load CSV data
         async function loadCSVData() {
-            const response = await fetch('patrimonio-data.csv');
-            if (!response.ok) {
-                throw new Error(`Error cargando CSV: ${response.status}`);
+            try {
+                console.log('Intentando cargar: patrimonio-data.csv');
+                const response = await fetch('patrimonio-data.csv');
+                console.log('Response status:', response.status, response.statusText);
+                console.log('Response headers:', response.headers.get('content-type'));
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+                }
+                
+                const csvText = await response.text();
+                console.log('CSV text length:', csvText.length);
+                console.log('First 200 characters:', csvText.substring(0, 200));
+                
+                if (csvText.length < 100) {
+                    throw new Error('El archivo CSV parece estar vacío o corrupto');
+                }
+                
+                currentData = parseCSV(csvText);
+                
+                if (currentData.length === 0) {
+                    throw new Error('No se pudieron parsear datos del CSV');
+                }
+                
+                // Save to localStorage for offline use
+                saveDataToStorage();
+                
+                console.log(`✅ CSV cargado exitosamente: ${currentData.length} puntos`);
+                return currentData;
+                
+            } catch (error) {
+                console.error('❌ Error detallado cargando CSV:', error);
+                throw error;
             }
-            const csvText = await response.text();
-            currentData = parseCSV(csvText);
-            
-            // Save to localStorage for offline use
-            saveDataToStorage();
-            
-            console.log(`Loaded ${currentData.length} points from CSV`);
-            return currentData;
         }
         
         // Handle CSV file upload
