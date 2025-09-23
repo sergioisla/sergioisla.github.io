@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Escuelas CECATI</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 350px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .filter-section {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .filter-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .course-filters {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .course-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .course-item:last-child {
+            border-bottom: none;
+        }
+        
+        .course-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        
+        .course-item label {
+            font-size: 0.9rem;
+            color: #555;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .stats {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .reset-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+            margin-top: 15px;
+        }
+        
+        .reset-btn:hover {
+            background: #ff5252;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .school-popup {
+            min-width: 250px;
+        }
+        
+        .school-popup h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .school-popup .address {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .school-popup .courses {
+            margin-top: 10px;
+        }
+        
+        .school-popup .courses h5 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .course-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .course-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 40vh;
+                order: 2;
+            }
+            
+            .map-container {
+                height: 60vh;
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>CECATI</h1>
+                <p>Mapa Interactivo de Escuelas</p>
+            </div>
+            
+            <div class="filter-section">
+                <h3>Buscar Cursos</h3>
+                <input type="text" class="search-box" id="courseSearch" placeholder="Buscar cursos disponibles...">
+                
+                <div class="course-filters" id="courseFilters">
+                    <!-- Course checkboxes will be populated here -->
+                </div>
+                
+                <button class="reset-btn" onclick="resetFilters()">Limpiar Filtros</button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Escuelas mostradas:</span>
+                    <span class="stat-value" id="schoolCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total de escuelas:</span>
+                    <span class="stat-value" id="totalSchools">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Cursos seleccionados:</span>
+                    <span class="stat-value" id="selectedCourses">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        // School data
+        const schoolData = {
+            1: { address: "Calz. Azcapotzalco - La Villa 304 Bis, Santa Catarina, Azcapotzalco, 02250 Ciudad de México, CDMX", lat: 19.490236, lng: -99.176016 },
+            2: { address: "Cda. Canoa 202 Col, Tizapán San Ángel, Loreto y Campamento, Álvaro Obregón, 01090 Ciudad de México, CDMX", lat: 19.335084, lng: -99.201933 },
+            3: { address: "Fray Servando Teresa de Mier, Sur 103 S/N, Aeronáutica Militar, Venustiano Carranza, 15960 CDMX", lat: 19.422347, lng: -99.117515 },
+            4: { address: "Presa Salinillas, Avenida Irrigacion 391, Miguel Hidalgo, 11200 CDMX", lat: 19.444696, lng: -99.215425 },
+            11: { address: "Calz. Azcapotzalco - La Villa 304-B, Santa Catarina, Azcapotzalco, 02250 Ciudad de México, CDMX", lat: 19.490198, lng: -99.175922 },
+            12: { address: "Atzacoalco 7700, Constitución de la República, Gustavo A. Madero, 07469 Ciudad de México, CDMX", lat: 19.485359, lng: -99.102101 },
+            13: { address: "Calle Museo, Esq. División del Norte S/N, Col. El Rosario, Alcaldía, Coyoacán, 04380 CDMX", lat: 19.327279, lng: -99.141551 },
+            14: { address: "Plaza Benito Juárez s/n, esq. sur 157, Gabriel Ramos Millán, Iztacalco, 08000 CDMX", lat: 19.394724, lng: -99.096177 },
+            25: { address: "Avenida Mazatlan 10, Colonia Condesa, Cuauhtémoc, 06140 Ciudad de México, CDMX", lat: 19.417421, lng: -99.175221 },
+            58: { address: "Lerdo 318, San Simón Tolnahuac, Cuauhtémoc, 06920 Ciudad de México, CDMX", lat: 19.456201, lng: -99.140146 },
+            66: { address: "Moras 519, Del Valle, Benito Juárez, 03100 Ciudad de México, CDMX", lat: 19.371858, lng: -99.174294 },
+            73: { address: "Lenguas Indígenas, Zoque Esq, Carlos Zapata Vela, Iztacalco, 08040 CDMX", lat: 19.382121, lng: -99.097454 },
+            74: { address: "Calz de Guadalupe 720, Industrial, Villa Gustavo A. Madero, Gustavo A. Madero, 07020 Ciudad de México, CDMX", lat: 19.482235, lng: -99.118241 },
+            75: { address: "Av. Ticomán, Lima 159 Esq, Lindavista, Gustavo A. Madero, 07300 CDMX", lat: 19.497087, lng: -99.123439 },
+            99: { address: "Joaquín Romo 144, Barrio de Caramaguey, Miguel Hidalgo, 14267 Ciudad de México, CDMX", lat: 19.292811, lng: -99.182854 },
+            108: { address: "Cda. de Cecati N° 304-C, Santo Tomas, Azcapotzalco, 02020 Ciudad de México, CDMX", lat: 19.488361, lng: -99.17581 },
+            127: { address: "Prolong, Del Río 10, Toriello Guerra, Tlalpan, 14040 Ciudad de México, CDMX", lat: 19.297763, lng: -99.163469 },
+            128: { address: "Calle 669 S/N, Esq, Av 606, San Juan de Aragón IV Secc, Gustavo A. Madero, 07979 CDMX", lat: 19.456377, lng: -99.059817 },
+            152: { address: "Lago Xochimilco 19, Anáhuac I Secc, Miguel Hidalgo, 11320 Ciudad de México, CDMX", lat: 19.449345, lng: -99.177769 },
+            153: { address: "41 Bis, Calzada Vallejo, Eje Central Lázaro Cárdenas Col, San Simón Tolnahualt, Cuauhtémoc, 06920 CDMX", lat: 19.456754, lng: -99.138258 },
+            155: { address: "Av. Azcapotzalco Esq. Nueva Jerusalén S/N, Alcaldía, Av. Azcapotzalco 42, Centro de Azcapotzalco, Azcapotzalco, 02000 Ciudad de México, CDMX", lat: 19.483439, lng: -99.185859 },
+            156: { address: "Calle Francisco Villa S/N Tlalpexco, Cuautepec, Barrio Alto, 07180 Ciudad de México, CDMX", lat: 19.546118, lng: -99.126578 },
+            157: { address: "Calzada de las Bombas S/N, Sión 9A, Coyoacán, 04909 Ciudad de México, CDMX", lat: 19.309837, lng: -99.106561 },
+            158: { address: "Berlioz 82, Ex Hipódromo de Peralvillo, Cuauhtémoc, 06250 Ciudad de México, CDMX", lat: 19.457891, lng: -99.133557 },
+            162: { address: "Naranjo 110, Sta María la Ribera, Cuauhtémoc, 06400 Ciudad de México, CDMX", lat: 19.447857, lng: -99.159034 },
+            167: { address: "C. Perseo Núm. 139, Prado Churubusco, Coyoacán, 04230 Ciudad de México, CDMX", lat: 19.352685, lng: -99.125243 },
+            171: { address: "C. Villa Franqueza 33, Esq. Izcóatl, Mixcoatl, Iztapalapa, 09708 Ciudad de México, CDMX", lat: 19.326201, lng: -99.046594 },
+            173: { address: "Calz. de Tlalpan 1021, Américas Unidas, Benito Juárez, 03610 Ciudad de México, CDMX", lat: 19.382083, lng: -99.139955 },
+            176: { address: "Av. San Rafael Atlixco S/N, Guadalupe del Moral, Iztapalapa, 09300 Ciudad de México, CDMX", lat: 19.362759, lng: -99.074570 },
+            187: { address: "C. Antillas entre Víctor Hugo y Municipio Libre, Portales Nte, Benito Juárez, 03303 Ciudad de México, CDMX", lat: 19.368859, lng: -99.142783 },
+            188: { address: "Calz. Reforma Agraria S/N, Santa Cecilia, Tláhuac, 13010 Ciudad de México, CDMX", lat: 19.276410, lng: -99.008154 },
+            194: { address: "C. Prolongación Artificios S/N, El Capulín, Álvaro Obregón, 01110 Ciudad de México, CDMX", lat: 19.396143, lng: -99.212427 }
+        };
+
+        // Course data
+        const courseData = {
+            "Administración": [1,2,3,4,11,12,13,14,25,58,73,74,99,127,128,152,153,155,156,157,158,162,167,171,173,176,187,188,194],
+            "Alimentos y bebidas": [2,3,4,66,73,74,99,127,152,156,157,158,162,167,171,176,188,194],
+            "Aplicación de normas y procedimientos contables y fiscales de una entidad económica": [3,12,13,66,73,74,75,127,128,152,153,155,156,157,158,162,167,173,176,187,194],
+            "Artes gráficas": [12,13,25,156,157,162,167,173,176,188],
+            "Artesanías con fibras textiles": [13,25,162],
+            "Artesanías con pastas, pinturas y acabados": [13,25,73,127,156,162],
+            "Artesanías metálicas": [13,25,73,127],
+            "Asistencia educativa": [1,3,4,12,13,25,73,74,75,99,156,157,162,167,173,176,187,194],
+            "Asistencia ejecutiva": [2,3,11,12,13,58,73,74,75,127,128,156,157,162,167,173,176,187,194],
+            "Atención integral a personas adultas mayores": [11,13,73,156,173,194],
+            "Auxiliar de enfermería": [58],
+            "Confección industrial de ropa": [3,4,12,13,74,75,127,128,157,162,176,187,194],
+            "Cosmetología": [1,3,4,12,13,14,58,73,74,75,99,127,128,152,156,157,158,162,167,171,173,176,187,188,194],
+            "Dibujo industrial y arquitectónico": [1,2,3,4,12,13,74,162],
+            "Diseño de modas": [4,12,13,127,128,152,153,156,157,162,173,194],
+            "Diseño e imagen de carrocería": [12,171],
+            "Diseño y decoración de interiores": [2],
+            "Diseño y elaboración de joyería y orfebrería": [25],
+            "Diseño y fabricación de muebles de madera": [12,13,127,128,157,176],
+            "Doblaje, locución y conducción en radio, cine y televisión": [108],
+            "Elaboración y restauración de artesanías de madera": [12,13,25,127,128,167],
+            "Electricidad": [2,3,4,11,12,73,74,127,171],
+            "Electrónica": [1,2,3,4,12,73,74,128,152,162,173,194],
+            "Electrónica automotriz": [1,3,14,171],
+            "Estilismo y diseño de imagen": [1,3,13,14,73,74,75,99,127,156,157,158,162,167,171,173,176,187,188,194],
+            "Expresión gráfica digital": [4,13,14,58,74,75,99,127,152,171,194],
+            "Floristería": [13],
+            "Fotografía": [108],
+            "Francés": [2,66,167,188],
+            "Gestión y venta de servicios turísticos": [66,73,171],
+            "Hotelería": [73,171],
+            "Inglés": [1,2,3,4,11,12,13,14,25,58,66,73,74,75,127,128,152,153,155,156,157,158,162,167,171,173,176,187,188,194],
+            "Instalaciones hidráulicas y de gas": [1,73],
+            "Mantenimiento de equipos y sistemas computacionales": [4,11,12,13,14,58,73,74,99,127,128,152,153,171,173,176,194],
+            "Mantenimiento de máquinas de costura": [58],
+            "Máquinas herramienta": [1,3,4],
+            "Mecánica automotriz": [1,3,14,171],
+            "Mecánica diesel": [14,171],
+            "Mecatrónica": [4,11,12],
+            "Metrología dimensional": [4],
+            "Producción de radio y televisión": [108],
+            "Producción industrial de alimentos": [194],
+            "Programación y aplicaciones web y móviles": [1,2,3,4,11,12,13,14,25,58,66,73,74,75,127,128,152,153,155,156,157,158,162,167,171,173,176,187,188,194],
+            "Prótesis dental": [73,194],
+            "Prótesis y órtesis": [171],
+            "Refrigeración y aire acondicionado": [11],
+            "Salud visual": [194],
+            "Sastrería": [12,74,162,188],
+            "Soldadura y pailería": [1,2,3,4,12,73],
+            "Tapicería": [12,13]
+        };
+
+        let map;
+        let markers = [];
+        let markerGroup;
+        
+        // Initialize the map
+        function initMap() {
+            // Center on Mexico City
+            map = L.map('map').setView([19.4326, -99.1332], 11);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            markerGroup = L.layerGroup().addTo(map);
+            
+            // Add all markers initially
+            addAllMarkers();
+            
+            // Update stats
+            updateStats();
+        }
+        
+        function addAllMarkers() {
+            Object.keys(schoolData).forEach(schoolId => {
+                const school = schoolData[schoolId];
+                const schoolCourses = getSchoolCourses(schoolId);
+                
+                const marker = L.marker([school.lat, school.lng])
+                    .bindPopup(createPopupContent(schoolId, school, schoolCourses));
+                
+                markers.push({
+                    marker: marker,
+                    schoolId: schoolId,
+                    courses: schoolCourses
+                });
+                
+                markerGroup.addLayer(marker);
+            });
+        }
+        
+        function getSchoolCourses(schoolId) {
+            const courses = [];
+            Object.keys(courseData).forEach(courseName => {
+                if (courseData[courseName].includes(parseInt(schoolId))) {
+                    courses.push(courseName);
+                }
+            });
+            return courses;
+        }
+        
+        function createPopupContent(schoolId, school, courses) {
+            let courseHtml = courses.map(course => 
+                `<span class="course-tag">${course}</span>`
+            ).join('');
+            
+            return `
+                <div class="school-popup">
+                    <h4>CECATI ${schoolId}</h4>
+                    <div class="address">${school.address}</div>
+                    <div class="courses">
+                        <h5>Cursos disponibles (${courses.length}):</h5>
+                        <div class="course-list">
+                            ${courseHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function initFilters() {
+            const filtersContainer = document.getElementById('courseFilters');
+            const searchBox = document.getElementById('courseSearch');
+            
+            Object.keys(courseData).sort().forEach(courseName => {
+                const courseItem = document.createElement('div');
+                courseItem.className = 'course-item';
+                courseItem.innerHTML = `
+                    <input type="checkbox" id="course-${courseName}" value="${courseName}" onchange="applyFilters()">
+                    <label for="course-${courseName}">${courseName}</label>
+                `;
+                filtersContainer.appendChild(courseItem);
+            });
+            
+            // Search functionality
+            searchBox.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const courseItems = filtersContainer.querySelectorAll('.course-item');
+                
+                courseItems.forEach(item => {
+                    const label = item.querySelector('label').textContent.toLowerCase();
+                    item.style.display = label.includes(searchTerm) ? 'flex' : 'none';
+                });
+            });
+        }
+        
+        function applyFilters() {
+            const checkedCourses = Array.from(document.querySelectorAll('#courseFilters input:checked'))
+                .map(input => input.value);
+            
+            // Clear current markers
+            markerGroup.clearLayers();
+            
+            if (checkedCourses.length === 0) {
+                // Show all markers if no filters selected
+                markers.forEach(markerData => {
+                    markerGroup.addLayer(markerData.marker);
+                });
+            } else {
+                // Show schools that offer ANY of the selected courses
+                markers.forEach(markerData => {
+                    const hasAnyCourse = checkedCourses.some(course => 
+                        markerData.courses.includes(course)
+                    );
+                    
+                    if (hasAnyCourse) {
+                        markerGroup.addLayer(markerData.marker);
+                    }
+                });
+            }
+            
+            updateStats();
+        }
+        
+        function resetFilters() {
+            // Uncheck all checkboxes
+            document.querySelectorAll('#courseFilters input').forEach(input => {
+                input.checked = false;
+            });
+            
+            // Clear search
+            document.getElementById('courseSearch').value = '';
+            
+            // Show all course items
+            document.querySelectorAll('.course-item').forEach(item => {
+                item.style.display = 'flex';
+            });
+            
+            // Reset map
+            applyFilters();
+        }
+        
+        function updateStats() {
+            const visibleMarkers = markerGroup.getLayers().length;
+            const totalSchools = Object.keys(schoolData).length;
+            const selectedCourses = document.querySelectorAll('#courseFilters input:checked').length;
+            
+            document.getElementById('schoolCount').textContent = visibleMarkers;
+            document.getElementById('totalSchools').textContent = totalSchools;
+            document.getElementById('selectedCourses').textContent = selectedCourses;
+        }
+        
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            initFilters();
+        });
+    </script>
+</body>
+</html>
