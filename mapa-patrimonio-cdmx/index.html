@@ -1,894 +1,689 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa del Patrimonio Cultural - CDMX</title>
+    <title>Mexico City Institutions Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <style>
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
-        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
         .header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
-            padding: 1rem;
+            padding: 30px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
         .header h1 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 2.5em;
+            font-weight: 300;
+            letter-spacing: 2px;
         }
-        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
         .controls {
-            background: white;
-            padding: 1rem;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .legend {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.25rem 0.5rem;
+            padding: 20px 30px;
             background: #f8f9fa;
-            border-radius: 4px;
-            font-size: 0.875rem;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 2px rgba(0,0,0,0.3);
-        }
-        
-        .admin-controls {
-            margin-left: auto;
+            border-bottom: 2px solid #e9ecef;
             display: flex;
-            gap: 0.5rem;
+            gap: 20px;
             align-items: center;
+            flex-wrap: wrap;
         }
-        
-        .btn {
-            padding: 0.5rem 1rem;
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
+        select, input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        .password-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 8px;
+            border: 2px solid #3498db;
+        }
+        .password-input {
+            width: 120px;
+        }
+        .auth-button {
+            padding: 8px 15px;
+            background: #3498db;
+            color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.875rem;
-            transition: background-color 0.2s;
+            font-weight: bold;
+            transition: background 0.3s;
         }
-        
-        .btn-admin {
+        .auth-button:hover {
+            background: #2980b9;
+        }
+        .auth-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .auth-status.authenticated {
+            background: #2ecc71;
+            color: white;
+        }
+        .auth-status.not-authenticated {
             background: #e74c3c;
             color: white;
         }
-        
-        .btn-admin:hover {
-            background: #c0392b;
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
         }
-        
-        .btn-logout {
-            background: #95a5a6;
-            color: white;
+        .stat-card {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 80px;
         }
-        
-        .btn-logout:hover {
-            background: #7f8c8d;
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
         }
-        
+        .stat-label {
+            font-size: 0.8em;
+            color: #666;
+            text-transform: uppercase;
+        }
         #map {
-            height: calc(100vh - 140px);
+            height: 600px;
             width: 100%;
         }
-        
-        .popup-content {
-            max-width: 300px;
-            font-size: 0.875rem;
-        }
-        
-        .popup-address {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 0.5rem;
-        }
-        
-        .popup-description {
-            color: #666;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-        
-        .status-section {
-            border-top: 1px solid #eee;
-            padding-top: 0.75rem;
-            margin-top: 0.75rem;
-        }
-        
-        .status-current {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .status-controls {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .status-btn {
-            padding: 0.25rem 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            background: white;
-            transition: all 0.2s;
-        }
-        
-        .status-btn:hover {
+        .legend {
+            padding: 20px 30px;
             background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
         }
-        
-        .status-btn.active {
-            background: #3498db;
-            color: white;
-            border-color: #3498db;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .modal h3 {
+        .legend h3 {
             margin-top: 0;
             color: #2c3e50;
         }
-        
-        .form-group {
-            margin-bottom: 1rem;
+        .legend-section {
+            margin-bottom: 20px;
         }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .form-actions {
+        .legend-items {
             display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
         }
-        
-        .btn-cancel {
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .status-selector {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .status-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        .status-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .status-btn.desconocido {
             background: #95a5a6;
             color: white;
         }
-        
-        .btn-login {
-            background: #27ae60;
+        .status-btn.verificado {
+            background: #2ecc71;
             color: white;
         }
-        
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .admin-controls {
-                margin-left: 0;
-                justify-content: center;
-            }
-            
-            .legend {
-                justify-content: center;
-            }
-            
-            #map {
-                height: calc(100vh - 180px);
-            }
+        .status-btn.inverificable {
+            background: #f39c12;
+            color: white;
+        }
+        .status-btn.destruido {
+            background: #e74c3c;
+            color: white;
+        }
+        .status-btn:hover {
+            transform: scale(1.05);
+            opacity: 0.8;
+        }
+        .status-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .export-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            border-left: 5px solid #2ecc71;
+        }
+        .export-btn {
+            padding: 10px 20px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .export-btn:hover {
+            background: #27ae60;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Mapa del Patrimonio Cultural - Ciudad de México</h1>
-    </div>
-    
-    <div class="controls">
-        <div class="legend" id="legend">
-            <!-- Legend will be populated dynamically -->
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ INSTITUCIONES CDMX</h1>
+            <p>Mapa Interactivo de Instituciones en la Ciudad de México</p>
         </div>
         
-        <div class="admin-controls">
-            <button id="adminBtn" class="btn btn-admin">Modo Administrador</button>
-            <button id="saveBtn" class="btn btn-logout" style="display: none;">Guardar Cambios</button>
-            <button id="downloadBtn" class="btn btn-logout" style="display: none;">Descargar JSON</button>
-            <button id="logoutBtn" class="btn btn-logout" style="display: none;">Cerrar Sesión</button>
+        <div class="controls">
+            <div class="control-group">
+                <label for="instituteFilter">Institución:</label>
+                <select id="instituteFilter">
+                    <option value="">Todas las instituciones</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="alcaldiaFilter">Alcaldía:</label>
+                <select id="alcaldiaFilter">
+                    <option value="">Todas las alcaldías</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="statusFilter">Estatus:</label>
+                <select id="statusFilter">
+                    <option value="">Todos los estatus</option>
+                    <option value="desconocido">Desconocido</option>
+                    <option value="verificado">Verificado</option>
+                    <option value="inverificable">Inverificable</option>
+                    <option value="destruido">Destruido</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="searchInput">Buscar:</label>
+                <input type="text" id="searchInput" placeholder="Calle o colonia...">
+            </div>
+            
+            <div class="password-section">
+                <label>🔒 Admin:</label>
+                <input type="password" id="passwordInput" class="password-input" placeholder="Contraseña">
+                <button class="auth-button" onclick="authenticate()">Acceder</button>
+                <span id="authStatus" class="auth-status not-authenticated">No autenticado</span>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalPoints">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="visiblePoints">0</div>
+                    <div class="stat-label">Visible</div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div id="map"></div>
-    
-    <!-- Admin Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <h3>Acceso de Administrador</h3>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="password">Contraseña:</label>
-                    <input type="password" id="password" required>
+        
+        <div id="map"></div>
+        
+        <div class="legend">
+            <div class="legend-section">
+                <h3>🎨 Leyenda por Institución</h3>
+                <div class="legend-items" id="legendItems"></div>
+            </div>
+            
+            <div class="legend-section">
+                <h3>📊 Leyenda por Estatus</h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #95a5a6; border: 3px solid #7f8c8d;"></div>
+                        <span>Desconocido</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2ecc71; border: 3px solid #27ae60;"></div>
+                        <span>Verificado</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f39c12; border: 3px solid #e67e22;"></div>
+                        <span>Inverificable</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e74c3c; border: 3px solid #c0392b;"></div>
+                        <span>Destruido</span>
+                    </div>
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-cancel" onclick="closeLoginModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-login">Iniciar Sesión</button>
-                </div>
-            </form>
+            </div>
+            
+            <div class="export-section">
+                <h4 style="margin-top: 0;">📥 Exportar Datos</h4>
+                <p>Descarga los datos actualizados con los cambios de estatus:</p>
+                <button class="export-btn" onclick="exportData()">Descargar CSV Actualizado</button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
         // Configuration
-        const ADMIN_PASSWORD = 'patrimonio2024'; // Change this password!
-        const MAP_CENTER = [19.35, -99.17]; // Coyoacán area
-        const MAP_ZOOM = 14;
-        
-        // Colors for different categories
-        const CATEGORY_COLORS = {
-            'INAH': '#e74c3c',           // RED
-            'INBA': '#3498db',           // BLUE  
-            'SEDUVI': '#27ae60',         // GREEN
-            'INAH, INBA': '#f1c40f',     // YELLOW
-            'INAH, SEDUVI': '#e67e22',   // ORANGE
-            'INBA, SEDUVI': '#9b59b6',   // PURPLE
-            'INAH, INBA, SEDUVI': '#2c3e50', // BLACK
-            'DEFAULT': '#95a5a6'         // GRAY for unknown
-        };
-        
-        // Global variables
-        let map;
-        let markersLayer;
-        let isAdmin = false;
-        let currentData = [];
-        let statusData = {}; // Store manual status tags
-        let hasUnsavedChanges = false;
-        
-        // Initialize the map
-        function initMap() {
-            map = L.map('map').setView(MAP_CENTER, MAP_ZOOM);
-            
-            // Add tile layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            // Create markers layer group
-            markersLayer = L.layerGroup().addTo(map);
-            
-            // Load saved data from localStorage first
-            loadSavedData();
-            
-            // Try to load files, but don't fail if they don't exist
-            loadDataFiles();
-        }
-        
-        // Load saved data from localStorage
-        function loadSavedData() {
-            try {
-                // Load CSV data from localStorage
-                const savedCSV = localStorage.getItem('heritageMapCSVData');
-                if (savedCSV) {
-                    currentData = JSON.parse(savedCSV);
-                    console.log(`Loaded ${currentData.length} points from localStorage`);
-                }
-                
-                // Load status data from localStorage
-                const savedStatus = localStorage.getItem('heritageMapStatusData');
-                if (savedStatus) {
-                    statusData = JSON.parse(savedStatus);
-                    console.log(`Loaded status data for ${Object.keys(statusData).length} points from localStorage`);
-                }
-                
-                // Update display if we have data
-                if (currentData.length > 0) {
-                    createMarkers(currentData);
-                    updateLegend();
-                    updateFileStatus();
-                }
-                
-            } catch (error) {
-                console.log('No saved data found or error loading:', error);
-            }
-        }
-        
-        // Save data to localStorage
-        function saveDataToStorage() {
-            try {
-                localStorage.setItem('heritageMapCSVData', JSON.stringify(currentData));
-                localStorage.setItem('heritageMapStatusData', JSON.stringify(statusData));
-                console.log('Data saved to localStorage');
-            } catch (error) {
-                console.error('Error saving data:', error);
-            }
-        }
-        
-        // Load both CSV and status data (optional files)
-        async function loadDataFiles() {
-            console.log('Cargando archivos del servidor...');
-            
-            try {
-                // Load CSV first
-                await loadCSVData();
-                console.log('CSV cargado exitosamente del servidor');
-                
-                // Then try to load status data
-                await loadStatusData();
-                console.log('Status data cargado exitosamente');
-                
-                // Create markers and legend
-                createMarkers(currentData);
-                updateLegend();
-                
-            } catch (error) {
-                console.error('Error cargando archivos:', error);
-                // Try to use saved data as fallback
-                if (currentData.length === 0) {
-                    console.log('Intentando usar datos guardados como respaldo...');
-                    loadSavedData();
-                    if (currentData.length === 0) {
-                        alert('No se pudieron cargar los datos. Verifica que patrimonio-data.csv esté en el servidor.');
-                    }
-                }
-            }
-        }
-        
-        // Load CSV data
-        async function loadCSVData() {
-            try {
-                console.log('Intentando cargar: patrimonio-data.csv');
-                const response = await fetch('patrimonio-data.csv');
-                console.log('Response status:', response.status, response.statusText);
-                console.log('Response headers:', response.headers.get('content-type'));
-                
-                if (!response.ok) {
-                    throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
-                }
-                
-                const csvText = await response.text();
-                console.log('CSV text length:', csvText.length);
-                console.log('First 200 characters:', csvText.substring(0, 200));
-                
-                if (csvText.length < 100) {
-                    throw new Error('El archivo CSV parece estar vacío o corrupto');
-                }
-                
-                currentData = parseCSV(csvText);
-                
-                if (currentData.length === 0) {
-                    throw new Error('No se pudieron parsear datos del CSV');
-                }
-                
-                // Save to localStorage for offline use
-                saveDataToStorage();
-                
-                console.log(`✅ CSV cargado exitosamente: ${currentData.length} puntos`);
-                return currentData;
-                
-            } catch (error) {
-                console.error('❌ Error detallado cargando CSV:', error);
-                throw error;
-            }
-        }
-        
-        // Handle CSV file upload
-        function handleCSVUpload(event) {
-            // This function is no longer used but kept for compatibility
-            console.log('CSV upload function deprecated - loading from server instead');
-        }
-        
-        // Update file status message
-        function updateFileStatus(message = null) {
-            // This function is no longer used but kept for compatibility
-            console.log('File status:', message || `${currentData.length} points loaded`);
-        }
-        
-        // Parse CSV text to JSON (optimized - excludes description)
+        const ADMIN_PASSWORD = "admin123"; // Change this password as needed
+        let isAuthenticated = false;
+
+        // Sample data - replace this with your full dataset
+        const sampleData = `INDICE,ID,ALCALDIA,CALLE,NUMERO,COLONIA,CODIGO,INSTITUTO,LONGITUD,LATITUD
+0,29,COYOACAN,BRUSELAS,99,DEL CARMEN,04100,INBA,-99.1687176492,19.3575053725
+1,52,COYOACAN,BRUSELAS,91,DEL CARMEN,04100,SEDUVI,-99.168405862,19.3576343636
+2,158,COYOACAN,VIENA,279,DEL CARMEN,04100,INBA,-99.1679314082,19.3559284476
+3,403,COYOACAN,MINA,97,DEL CARMEN,04100,INBA,-99.1674994362,19.3581516404
+4,405,COYOACAN,MINA,93,DEL CARMEN,04100,INBA,-99.1674702039,19.358052668
+5,466,COYOACAN,CJON DEL RIO,33,STA CATARINA,04010,INBA,-99.1774774332,19.3510107175
+6,467,COYOACAN,DEL ARCO,7,STA CATARINA,04010,INBA,-99.1671808945,19.345719815
+7,589,COYOACAN,AV. PROGRESO,3,DEL CARMEN,04100,SEDUVI,-99.1756714724,19.3519880949
+8,591,COYOACAN,,,DEL CARMEN,04100,SEDUVI,-99.1721125036,19.3538282202
+9,593,COYOACAN,VIENA,314,DEL CARMEN,04100,INAH,-99.1674259126,19.3555797492
+10,597,COYOACAN,VIENA,314,DEL CARMEN,04100,INAH,-99.1673079051,19.3556032798
+11,657,COYOACAN,PROGRESO,29,STA CATARINA,04010,INBA,-99.1721993254,19.3505805885
+12,706,COYOACAN,AV BENITO JUAREZ,86,DEL CARMEN,04100,INBA,-99.1687954127,19.352588993
+13,738,COYOACAN,BENITO JUAREZ,21,DEL CARMEN,04100,INAH,-99.1673326231,19.3527476305
+14,824,COYOACAN,CALLE DE BERLIN,195,DEL CARMEN,04100,INBA,-99.1618260055,19.3562878283
+15,858,COYOACAN,BERLIN,287,DEL CARMEN,04100,INBA,-99.1654883085,19.3554023925
+16,925,COYOACAN,CALZ TLALPAN,3058,EX HACIENDA COAPA,04980,INBA,-99.1389414889,19.3111277396`;
+
+        // Parse CSV data and add default status
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
             const headers = lines[0].split(',');
-            const data = [];
-            
-            // Find column indices for required fields
-            const colIndices = {};
-            const requiredCols = ['INDICE', 'SP_ALCALDIA', 'SP_CALLE', 'SP_NUMERO', 'SP_COLONIA', 'SP_CODIGO', 'SP_NOMBRE', 'X', 'Y'];
-            
-            headers.forEach((header, index) => {
-                const cleanHeader = header.trim();
-                if (requiredCols.includes(cleanHeader)) {
-                    colIndices[cleanHeader] = index;
-                }
-            });
-            
-            // Parse rows but skip SP_DESCRIP for performance
-            for (let i = 1; i < lines.length; i++) {
-                const values = parseCSVLine(lines[i]);
-                if (values.length >= headers.length) {
-                    const row = {};
-                    
-                    // Only extract needed columns
-                    for (const col of requiredCols) {
-                        if (colIndices[col] !== undefined) {
-                            row[col] = values[colIndices[col]].trim();
-                        }
-                    }
-                    
-                    // Convert coordinates to numbers
-                    row.X = parseFloat(row.X);
-                    row.Y = parseFloat(row.Y);
-                    row.INDICE = parseInt(row.INDICE);
-                    
-                    // Only add if coordinates are valid and required fields exist
-                    if (!isNaN(row.X) && !isNaN(row.Y) && !isNaN(row.INDICE) && row.SP_NOMBRE) {
-                        data.push(row);
-                    }
-                }
-            }
-            
-            return data;
-        }
-        
-        // Parse a single CSV line (handles commas within quoted fields)
-        function parseCSVLine(line) {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    result.push(current);
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            
-            result.push(current);
-            return result;
-        }
-        // Load status data from JSON file
-        async function loadStatusData() {
-            const response = await fetch('status-data.json');
-            if (response.ok) {
-                statusData = await response.json();
-                console.log(`Loaded status data for ${Object.keys(statusData).length} points`);
-            } else {
-                console.log('No status data file found, will create default status data');
-                statusData = {};
-            }
-            return statusData;
-        }
-        
-        // Create default status data for all points
-        function createDefaultStatusData() {
-            const newStatusData = {};
-            currentData.forEach(point => {
-                if (!statusData.hasOwnProperty(point.INDICE)) {
-                    newStatusData[point.INDICE] = 'desconocido';
-                }
-            });
-            
-            // Merge with existing status data
-            statusData = { ...statusData, ...newStatusData };
-            
-            console.log(`Created default status for ${Object.keys(newStatusData).length} new points`);
-        }
-        // Sample data loader (fallback for testing)
-        function loadSampleData() {
-        // Sample data loader (fallback for testing)
-        function loadSampleData() {
-            console.log('Loading sample data for testing...');
-            const sampleData = [
-                {
-                    INDICE: 29,
-                    SP_ALCALDIA: 'COYOACAN',
-                    SP_CALLE: 'BRUSELAS',
-                    SP_NUMERO: '99',
-                    SP_COLONIA: 'DEL CARMEN',
-                    SP_CODIGO: '04100',
-                    SP_NOMBRE: 'INBA',
-                    X: -99.1687176492,
-                    Y: 19.3575053725
-                },
-                {
-                    INDICE: 52,
-                    SP_ALCALDIA: 'COYOACAN',
-                    SP_CALLE: 'BRUSELAS',
-                    SP_NUMERO: '91',
-                    SP_COLONIA: 'DEL CARMEN',
-                    SP_CODIGO: '04100',
-                    SP_NOMBRE: 'SEDUVI',
-                    X: -99.168405862,
-                    Y: 19.3576343636
-                },
-                {
-                    INDICE: 158,
-                    SP_ALCALDIA: 'COYOACAN',
-                    SP_CALLE: 'VIENA',
-                    SP_NUMERO: '279',
-                    SP_COLONIA: 'DEL CARMEN',
-                    SP_CODIGO: '04100',
-                    SP_NOMBRE: 'INAH',
-                    X: -99.1679314082,
-                    Y: 19.3559284476
-                },
-                {
-                    INDICE: 403,
-                    SP_ALCALDIA: 'COYOACAN',
-                    SP_CALLE: 'MINA',
-                    SP_NUMERO: '97',
-                    SP_COLONIA: 'DEL CARMEN',
-                    SP_CODIGO: '04100',
-                    SP_NOMBRE: 'INAH, INBA',
-                    X: -99.1674994362,
-                    Y: 19.3581516404
-                },
-                {
-                    INDICE: 405,
-                    SP_ALCALDIA: 'COYOACAN',
-                    SP_CALLE: 'MINA',
-                    SP_NUMERO: '93',
-                    SP_COLONIA: 'DEL CARMEN',
-                    SP_CODIGO: '04100',
-                    SP_NOMBRE: 'INAH, INBA, SEDUVI',
-                    X: -99.1674702039,
-                    Y: 19.358052668
-                }
-            ];
-            
-            currentData = sampleData;
-            createMarkers(currentData);
-            updateLegend();
-            updateFileStatus('Datos de prueba cargados (5 puntos)');
-        }
-        }
-        
-        // Create markers from data
-        function createMarkers(data) {
-            markersLayer.clearLayers();
-            
-            // Create default status data if needed
-            createDefaultStatusData();
-            
-            data.forEach(point => {
-                const category = point.SP_NOMBRE || 'DEFAULT';
-                const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.DEFAULT;
-                
-                // Get status and modify marker appearance if destroyed
-                const status = statusData[point.INDICE] || 'desconocido';
-                const isDestroyed = status === 'destruido';
-                
-                const marker = L.circleMarker([point.Y, point.X], {
-                    radius: isDestroyed ? 4 : 6,
-                    fillColor: color,
-                    color: isDestroyed ? '#333' : 'white',
-                    weight: isDestroyed ? 3 : 2,
-                    opacity: isDestroyed ? 0.7 : 1,
-                    fillOpacity: isDestroyed ? 0.4 : 0.8,
-                    dashArray: isDestroyed ? '5,5' : null
+            return lines.slice(1).map(line => {
+                const values = line.split(',');
+                const obj = {};
+                headers.forEach((header, index) => {
+                    obj[header] = values[index] || '';
                 });
-                
-                const popupContent = createPopupContent(point);
-                marker.bindPopup(popupContent, { maxWidth: 350 });
-                
-                markersLayer.addLayer(marker);
+                obj.ESTATUS = 'desconocido'; // Add default status
+                return obj;
             });
         }
-        
-        // Create popup content
-        function createPopupContent(point) {
-            const address = `${point.SP_CALLE} ${point.SP_NUMERO}, ${point.SP_COLONIA}`;
-            const currentStatus = statusData[point.INDICE] || 'desconocido';
-            
-            let popupHtml = `
-                <div class="popup-content">
-                    <div class="popup-address">${address}</div>
-                    <div style="color: #666; font-size: 0.8rem; margin-bottom: 0.5rem;">
-                        ${point.SP_ALCALDIA} - ${point.SP_CODIGO}
-                    </div>
-                    <div style="margin-bottom: 0.75rem;"><strong>Categoría:</strong> ${point.SP_NOMBRE}</div>
-            `;
-            
-            if (isAdmin) {
-                popupHtml += `
-                    <div class="status-section">
-                        <div class="status-current">Estado: <span style="color: ${getStatusColor(currentStatus)}">${getStatusLabel(currentStatus)}</span></div>
-                        <div class="status-controls">
-                            <button class="status-btn ${currentStatus === 'existente' ? 'active' : ''}" 
-                                    onclick="updateStatus(${point.INDICE}, 'existente')">Existente</button>
-                            <button class="status-btn ${currentStatus === 'destruido' ? 'active' : ''}" 
-                                    onclick="updateStatus(${point.INDICE}, 'destruido')">Destruido</button>
-                            <button class="status-btn ${currentStatus === 'desconocido' ? 'active' : ''}" 
-                                    onclick="updateStatus(${point.INDICE}, 'desconocido')">Desconocido</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                popupHtml += `
-                    <div class="status-section">
-                        <div><strong>Estado:</strong> <span style="color: ${getStatusColor(currentStatus)}">${getStatusLabel(currentStatus)}</span></div>
-                    </div>
-                `;
-            }
-            
-            popupHtml += '</div>';
-            return popupHtml;
-        }
-        
-        // Status helper functions
-        function getStatusColor(status) {
-            switch(status) {
-                case 'existente': return '#27ae60';
-                case 'destruido': return '#e74c3c';
-                case 'desconocido': return '#f39c12';
-                default: return '#f39c12';
-            }
-        }
-        
-        function getStatusLabel(status) {
-            switch(status) {
-                case 'existente': return 'Existente';
-                case 'destruido': return 'Destruido';
-                case 'desconocido': return 'Desconocido';
-                default: return 'Desconocido';
-            }
-        }
-        
-        // Update status function
-        function updateStatus(indice, newStatus) {
-            statusData[indice] = newStatus;
-            hasUnsavedChanges = true;
-            
-            // Save to localStorage immediately
-            saveDataToStorage();
-            
-            // Update only the popup content without recreating all markers
-            updateMarkerPopups();
-            
-            // Update button text to show unsaved changes
-            updateSaveButton();
-            
-            console.log(`Status updated for point ${indice}: ${newStatus}`);
-        }
-        
-        // Update marker popups without recreating markers
-        function updateMarkerPopups() {
-            markersLayer.eachLayer(function(marker) {
-                // Find the corresponding data point
-                const latLng = marker.getLatLng();
-                const point = currentData.find(p => 
-                    Math.abs(p.Y - latLng.lat) < 0.0001 && 
-                    Math.abs(p.X - latLng.lng) < 0.0001
-                );
-                
-                if (point) {
-                    const newContent = createPopupContent(point);
-                    marker.setPopupContent(newContent);
-                }
+
+        // Load saved status data
+        function loadStatusData() {
+            const savedData = {};
+            data.forEach(point => {
+                const savedStatus = null; // In a real app, you'd load this from a database
+                point.ESTATUS = savedStatus || 'desconocido';
             });
         }
-        
-        // Update save button text
-        function updateSaveButton() {
-            const saveBtn = document.getElementById('saveBtn');
-            if (hasUnsavedChanges) {
-                saveBtn.textContent = 'Guardar Cambios *';
-                saveBtn.style.background = '#e67e22';
-            } else {
-                saveBtn.textContent = 'Cambios Guardados';
-                saveBtn.style.background = '#27ae60';
-            }
+
+        // Save status data (in memory only - in production, send to server)
+        function saveStatusData(pointId, newStatus) {
+            // In a real application, you would save this to a database
+            console.log(`Saving status for point ${pointId}: ${newStatus}`);
+            return true;
         }
-        
-        // Save changes (mark as saved)
-        function saveChanges() {
-            hasUnsavedChanges = false;
-            updateSaveButton();
+
+        // Authentication
+        function authenticate() {
+            const password = document.getElementById('passwordInput').value;
+            const authStatus = document.getElementById('authStatus');
             
-            // Also save to localStorage
-            saveDataToStorage();
-            
-            alert('Cambios guardados localmente. Usa "Descargar JSON" para obtener el archivo actualizado.');
-        }
-        
-        // Export status data for download
-        function downloadStatusData() {
-            if (Object.keys(statusData).length === 0) {
-                alert('No hay datos de estado para descargar');
-                return;
-            }
-            
-            const dataStr = JSON.stringify(statusData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'status-data.json';
-            link.click();
-            
-            console.log('Status data downloaded');
-        }
-        
-        // Update legend
-        function updateLegend() {
-            const legendEl = document.getElementById('legend');
-            const categories = [...new Set(currentData.map(p => p.SP_NOMBRE))];
-            
-            legendEl.innerHTML = categories.map(category => {
-                const color = CATEGORY_COLORS[category] || CATEGORY_COLORS.DEFAULT;
-                return `
-                    <div class="legend-item">
-                        <div class="legend-color" style="background-color: ${color}"></div>
-                        <span>${category}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        // Admin authentication
-        function showLoginModal() {
-            document.getElementById('loginModal').style.display = 'flex';
-        }
-        
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = 'none';
-            document.getElementById('password').value = '';
-        }
-        
-        function login(password) {
             if (password === ADMIN_PASSWORD) {
-                isAdmin = true;
-                document.getElementById('adminBtn').style.display = 'none';
-                document.getElementById('saveBtn').style.display = 'inline-block';
-                document.getElementById('downloadBtn').style.display = 'inline-block';
-                document.getElementById('logoutBtn').style.display = 'inline-block';
-                closeLoginModal();
+                isAuthenticated = true;
+                authStatus.textContent = 'Autenticado';
+                authStatus.className = 'auth-status authenticated';
+                document.getElementById('passwordInput').value = '';
                 
-                // Update save button state
-                updateSaveButton();
+                // Refresh markers to show edit capabilities
+                filterData();
                 
-                // Refresh markers to show admin controls
-                createMarkers(currentData);
-                
-                alert('Modo administrador activado');
+                // Show success message
+                showNotification('✅ Autenticación exitosa. Ahora puedes editar el estatus.', 'success');
             } else {
-                alert('Contraseña incorrecta');
+                isAuthenticated = false;
+                authStatus.textContent = 'Contraseña incorrecta';
+                authStatus.className = 'auth-status not-authenticated';
+                showNotification('❌ Contraseña incorrecta.', 'error');
             }
         }
-        
-        function logout() {
-            if (hasUnsavedChanges) {
-                if (!confirm('Tienes cambios sin guardar. ¿Estás seguro que quieres cerrar sesión?')) {
-                    return;
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                padding: 15px 25px; border-radius: 8px; font-weight: bold;
+                z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                ${type === 'success' ? 'background: #2ecc71; color: white;' : 'background: #e74c3c; color: white;'}
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Update point status
+        function updatePointStatus(pointId, newStatus) {
+            if (!isAuthenticated) {
+                showNotification('❌ Debes autenticarte para cambiar el estatus.', 'error');
+                return false;
+            }
+
+            const point = data.find(p => p.ID === pointId);
+            if (point) {
+                point.ESTATUS = newStatus;
+                saveStatusData(pointId, newStatus);
+                
+                // Refresh the map
+                filterData();
+                
+                showNotification(`✅ Estatus actualizado a: ${newStatus}`, 'success');
+                return true;
+            }
+            return false;
+        }
+
+        // Color schemes
+        const institutionColors = {
+            'INBA': '#e74c3c',
+            'SEDUVI': '#3498db',
+            'INAH': '#2ecc71',
+            'SEDEMA': '#f39c12',
+            'SOBSE': '#9b59b6',
+            'CONACULTA': '#1abc9c',
+            'Default': '#95a5a6'
+        };
+
+        const statusBorders = {
+            'desconocido': '#7f8c8d',
+            'verificado': '#27ae60',
+            'inverificable': '#e67e22',
+            'destruido': '#c0392b'
+        };
+
+        function getInstitutionColor(instituto) {
+            return institutionColors[instituto] || institutionColors['Default'];
+        }
+
+        function getStatusBorder(status) {
+            return statusBorders[status] || statusBorders['desconocido'];
+        }
+
+        // Initialize map
+        const map = L.map('map').setView([19.35, -99.17], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Parse data and setup
+        const data = parseCSV(sampleData);
+        loadStatusData();
+        let currentMarkers = [];
+        let allInstitutions = [...new Set(data.map(d => d.INSTITUTO))].filter(Boolean).sort();
+        let allAlcaldias = [...new Set(data.map(d => d.ALCALDIA))].filter(Boolean).sort();
+
+        // Populate filters
+        function populateFilters() {
+            const instituteSelect = document.getElementById('instituteFilter');
+            const alcaldiaSelect = document.getElementById('alcaldiaFilter');
+            
+            allInstitutions.forEach(inst => {
+                const option = document.createElement('option');
+                option.value = inst;
+                option.textContent = inst;
+                instituteSelect.appendChild(option);
+            });
+            
+            allAlcaldias.forEach(alc => {
+                const option = document.createElement('option');
+                option.value = alc;
+                option.textContent = alc;
+                alcaldiaSelect.appendChild(option);
+            });
+        }
+
+        // Create legend
+        function createLegend() {
+            const legendItems = document.getElementById('legendItems');
+            allInstitutions.forEach(instituto => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${getInstitutionColor(instituto)}"></div>
+                    <span>${instituto}</span>
+                `;
+                legendItems.appendChild(item);
+            });
+        }
+
+        // Create status selector for popup
+        function createStatusSelector(point) {
+            if (!isAuthenticated) {
+                return `<p style="margin: 10px 0; font-style: italic; color: #666;">
+                    🔒 Autenticarse como administrador para editar estatus
+                </p>`;
+            }
+
+            return `
+                <div class="status-selector">
+                    <strong>🔄 Cambiar Estatus:</strong>
+                    <div class="status-buttons">
+                        <button class="status-btn desconocido" onclick="updatePointStatus('${point.ID}', 'desconocido')">Desconocido</button>
+                        <button class="status-btn verificado" onclick="updatePointStatus('${point.ID}', 'verificado')">Verificado</button>
+                        <button class="status-btn inverificable" onclick="updatePointStatus('${point.ID}', 'inverificable')">Inverificable</button>
+                        <button class="status-btn destruido" onclick="updatePointStatus('${point.ID}', 'destruido')">Destruido</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Create markers
+        function createMarkers(filteredData) {
+            // Clear existing markers
+            currentMarkers.forEach(marker => map.removeLayer(marker));
+            currentMarkers = [];
+
+            filteredData.forEach(point => {
+                const lat = parseFloat(point.LATITUD);
+                const lng = parseFloat(point.LONGITUD);
+                
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    const marker = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        fillColor: getInstitutionColor(point.INSTITUTO),
+                        color: getStatusBorder(point.ESTATUS),
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+
+                    const address = [point.CALLE, point.NUMERO].filter(Boolean).join(' ');
+                    const statusEmoji = {
+                        'desconocido': '❓',
+                        'verificado': '✅',
+                        'inverificable': '⚠️',
+                        'destruido': '❌'
+                    };
+
+                    const popupContent = `
+                        <div style="font-family: 'Segoe UI', sans-serif; max-width: 300px;">
+                            <h4 style="margin: 0 0 10px 0; color: ${getInstitutionColor(point.INSTITUTO)}; border-bottom: 2px solid ${getInstitutionColor(point.INSTITUTO)}; padding-bottom: 5px;">
+                                ${point.INSTITUTO}
+                            </h4>
+                            <p style="margin: 5px 0;"><strong>📍 Dirección:</strong><br>${address || 'No especificada'}</p>
+                            <p style="margin: 5px 0;"><strong>🏘️ Colonia:</strong> ${point.COLONIA}</p>
+                            <p style="margin: 5px 0;"><strong>🏛️ Alcaldía:</strong> ${point.ALCALDIA}</p>
+                            <p style="margin: 5px 0;"><strong>📮 CP:</strong> ${point.CODIGO}</p>
+                            <p style="margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid ${getStatusBorder(point.ESTATUS)};"><strong>📊 Estatus:</strong> ${statusEmoji[point.ESTATUS]} ${point.ESTATUS.charAt(0).toUpperCase() + point.ESTATUS.slice(1)}</p>
+                            ${createStatusSelector(point)}
+                            <p style="margin: 5px 0; font-size: 0.9em; color: #666;"><strong>ID:</strong> ${point.ID}</p>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    marker.addTo(map);
+                    currentMarkers.push(marker);
                 }
-            }
-            
-            isAdmin = false;
-            hasUnsavedChanges = false;
-            document.getElementById('adminBtn').style.display = 'inline-block';
-            document.getElementById('saveBtn').style.display = 'none';
-            document.getElementById('downloadBtn').style.display = 'none';
-            document.getElementById('logoutBtn').style.display = 'none';
-            
-            // Refresh markers to hide admin controls
-            createMarkers(currentData);
+            });
+
+            updateStats(filteredData.length);
         }
-        
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            
-            // Admin button
-            document.getElementById('adminBtn').addEventListener('click', showLoginModal);
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('saveBtn').addEventListener('click', saveChanges);
-            document.getElementById('downloadBtn').addEventListener('click', downloadStatusData);
-            
-            // Login form
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const password = document.getElementById('password').value;
-                login(password);
-            });
-            
-            // Close modal on outside click
-            document.getElementById('loginModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeLoginModal();
-                }
-            });
-        });
-        
-        // Function to load CSV data (you'll need to implement this)
-        function loadCSVData(csvText) {
-            // This function is now replaced by the loadCSVData() async function above
-            // But kept for backward compatibility
-            currentData = parseCSV(csvText);
-            createMarkers(currentData);
-            updateLegend();
+
+        // Update statistics
+        function updateStats(visibleCount) {
+            document.getElementById('totalPoints').textContent = data.length.toLocaleString();
+            document.getElementById('visiblePoints').textContent = visibleCount.toLocaleString();
         }
-        
-        // Generate initial status data JSON for download
-        function generateInitialStatusData() {
-            if (currentData.length === 0) {
-                alert('Primero carga los datos CSV');
-                return;
-            }
-            
-            const initialStatus = {};
-            currentData.forEach(point => {
-                initialStatus[point.INDICE] = 'desconocido';
+
+        // Filter data
+        function filterData() {
+            const instituteFilter = document.getElementById('instituteFilter').value;
+            const alcaldiaFilter = document.getElementById('alcaldiaFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = data.filter(point => {
+                const matchInstitute = !instituteFilter || point.INSTITUTO === instituteFilter;
+                const matchAlcaldia = !alcaldiaFilter || point.ALCALDIA === alcaldiaFilter;
+                const matchStatus = !statusFilter || point.ESTATUS === statusFilter;
+                const matchSearch = !searchText || 
+                    (point.CALLE && point.CALLE.toLowerCase().includes(searchText)) ||
+                    (point.COLONIA && point.COLONIA.toLowerCase().includes(searchText)) ||
+                    (point.ALCALDIA && point.ALCALDIA.toLowerCase().includes(searchText));
+                
+                return matchInstitute && matchAlcaldia && matchStatus && matchSearch;
             });
-            
-            const dataStr = JSON.stringify(initialStatus, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
+
+            createMarkers(filtered);
+        }
+
+        // Export data function
+        function exportData() {
+            const headers = ['INDICE','ID','ALCALDIA','CALLE','NUMERO','COLONIA','CODIGO','INSTITUTO','LONGITUD','LATITUD','ESTATUS'];
+            const csvContent = [
+                headers.join(','),
+                ...data.map(point => [
+                    point.INDICE,
+                    point.ID,
+                    point.ALCALDIA,
+                    point.CALLE,
+                    point.NUMERO,
+                    point.COLONIA,
+                    point.CODIGO,
+                    point.INSTITUTO,
+                    point.LONGITUD,
+                    point.LATITUD,
+                    point.ESTATUS
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = 'status-data-initial.json';
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `instituciones_cdmx_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
             
-            alert(`Archivo inicial generado con ${Object.keys(initialStatus).length} puntos. Renómbralo a 'status-data.json' y súbelo a tu servidor.`);
+            showNotification('📥 Archivo CSV descargado exitosamente', 'success');
         }
+
+        // Event listeners
+        document.getElementById('instituteFilter').addEventListener('change', filterData);
+        document.getElementById('alcaldiaFilter').addEventListener('change', filterData);
+        document.getElementById('statusFilter').addEventListener('change', filterData);
+        document.getElementById('searchInput').addEventListener('input', filterData);
+
+        // Allow Enter key for authentication
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                authenticate();
+            }
+        });
+
+        // Initialize
+        populateFilters();
+        createLegend();
+        createMarkers(data);
+
+        // Add note about sample data
+        const noteDiv = document.createElement('div');
+        noteDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(231, 76, 60, 0.9); color: white; padding: 15px; border-radius: 8px; font-size: 14px; max-width: 250px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;';
+        noteDiv.innerHTML = `
+            <strong>📊 Datos de Muestra</strong><br>
+            Actualmente mostrando ${data.length} puntos de muestra.<br>
+            <strong>🔑 Contraseña de prueba:</strong> admin123<br>
+            <em>Para usar con 16,000 puntos, reemplaza el dataset.</em>
+        `;
+        document.body.appendChild(noteDiv);
     </script>
 </body>
 </html>
