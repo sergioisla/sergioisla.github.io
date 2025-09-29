@@ -16203,16 +16203,8 @@
         createLegend();
         createMarkers(data);
 
-        // Add note about sample data
-        const noteDiv = document.createElement('div');
-        noteDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: rgba(231, 76, 60, 0.9); color: white; padding: 15px; border-radius: 8px; font-size: 14px; max-width: 250px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;';
-        noteDiv.innerHTML = `
-            <strong>📊 Datos de Muestra</strong><br>
-            Actualmente mostrando ${data.length} puntos de muestra.<br>
-            <strong>🔑 Contraseña de prueba:</strong> admin123<br>
-            <em>Para usar con 16,000 puntos, reemplaza el dataset.</em>
-        `;
-        document.body.appendChild(noteDiv);
+        
     </script>
 </body>
 </html>
+
