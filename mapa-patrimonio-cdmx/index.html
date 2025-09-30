@@ -279,12 +279,7 @@
                 <input type="text" id="searchInput" placeholder="Calle o colonia...">
             </div>
             
-            <div class="password-section">
-                <label>🔒 Admin:</label>
-                <input type="password" id="passwordInput" class="password-input" placeholder="Contraseña">
-                <button class="auth-button" onclick="authenticate()">Acceder</button>
-                <span id="authStatus" class="auth-status not-authenticated">No autenticado</span>
-            </div>
+            
             
             <div class="stats">
                 <div class="stat-card">
@@ -326,6 +321,13 @@
                         <span>Destruido</span>
                     </div>
                 </div>
+            </div>
+
+            <div class="password-section">
+                <label>🔒 Admin:</label>
+                <input type="password" id="passwordInput" class="password-input" placeholder="Contraseña">
+                <button class="auth-button" onclick="authenticate()">Acceder</button>
+                <span id="authStatus" class="auth-status not-authenticated">No autenticado</span>
             </div>
             
             <div class="export-section" id="exportSection" style="display: none;">
@@ -720,4 +722,5 @@
     </script>
 </body>
 </html>
+
 
